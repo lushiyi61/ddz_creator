@@ -1,0 +1,30 @@
+{
+  "ver": "1.0.0",
+  "uuid": "5f7565a0-569b-4b68-aa42-1d8f23c867d1",
+  "type": "sprite",
+  "wrapMode": "clamp",
+  "filterMode": "bilinear",
+  "subMetas": {
+    "nationaldayact": {
+      "ver": "1.0.3",
+      "uuid": "be239008-6223-4f42-9407-8369459720d8",
+      "rawTextureUuid": "5f7565a0-569b-4b68-aa42-1d8f23c867d1",
+      "trimType": "auto",
+      "trimThreshold": 1,
+      "rotated": false,
+      "offsetX": -12,
+      "offsetY": 32,
+      "trimX": 2,
+      "trimY": 2,
+      "width": 484,
+      "height": 956,
+      "rawWidth": 512,
+      "rawHeight": 1024,
+      "borderTop": 0,
+      "borderBottom": 0,
+      "borderLeft": 0,
+      "borderRight": 0,
+      "subMetas": {}
+    }
+  }
+}

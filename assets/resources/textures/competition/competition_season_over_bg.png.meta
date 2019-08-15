@@ -1,0 +1,30 @@
+{
+  "ver": "1.0.0",
+  "uuid": "76fdbf76-b881-4c98-98ad-8e5a7c968ed9",
+  "type": "sprite",
+  "wrapMode": "clamp",
+  "filterMode": "bilinear",
+  "subMetas": {
+    "competition_season_over_bg": {
+      "ver": "1.0.3",
+      "uuid": "b3ddba92-9baf-4bd1-b142-122eb2bd6c33",
+      "rawTextureUuid": "76fdbf76-b881-4c98-98ad-8e5a7c968ed9",
+      "trimType": "auto",
+      "trimThreshold": 1,
+      "rotated": false,
+      "offsetX": -38,
+      "offsetY": -0.5,
+      "trimX": 1,
+      "trimY": 1,
+      "width": 572,
+      "height": 738,
+      "rawWidth": 650,
+      "rawHeight": 739,
+      "borderTop": 0,
+      "borderBottom": 0,
+      "borderLeft": 0,
+      "borderRight": 0,
+      "subMetas": {}
+    }
+  }
+}

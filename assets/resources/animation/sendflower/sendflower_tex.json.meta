@@ -1,0 +1,7 @@
+{
+  "ver": "1.0.0",
+  "uuid": "1a3423f5-da38-4169-9362-bcc89a8def52",
+  "atlasJson": "{\"width\":256,\"imagePath\":\"sendflower_tex.png\",\"height\":512,\"name\":\"sendflower\",\"SubTexture\":[{\"y\":1,\"frameX\":0,\"frameHeight\":54,\"frameY\":0,\"width\":52,\"frameWidth\":52,\"height\":49,\"name\":\"animation_got_5b2\",\"x\":166},{\"y\":1,\"frameX\":-1,\"frameHeight\":159,\"frameY\":-2,\"width\":163,\"frameWidth\":166,\"height\":155,\"name\":\"animation_got_5b1\",\"x\":1},{\"y\":158,\"frameX\":-4,\"frameHeight\":128,\"frameY\":-3,\"width\":122,\"frameWidth\":126,\"height\":122,\"name\":\"animation_got_5b3X\",\"x\":1}]}",
+  "texture": "f1bf3c12-85d4-4dcd-8633-1a7485f60767",
+  "subMetas": {}
+}

@@ -1,0 +1,20 @@
+info face="font_eventGameOverTitle_lose" size=32 bold=0 italic=0 charset="" unicode=0 stretchH=100 smooth=1 aa=1 padding=0,0,0,0 spacing=1,1
+common lineHeight=28 base=26 scaleW=128 scaleH=128 pages=1 packed=0 alphaChnl=1 redChnl=0 greenChnl=0 blueChnl=0
+page id=0 file="font_eventGameOverTitle_lose.png"
+chars count=14
+char id=26165 x=50 y=49 width=23 height=23 xoffset=0 yoffset=5 xadvance=24 page=0 chnl=0 letter="昵"
+char id=31216 x=26 y=0 width=24 height=24 xoffset=0 yoffset=4 xadvance=25 page=0 chnl=0 letter="称"
+char id=27573 x=25 y=48 width=24 height=23 xoffset=0 yoffset=5 xadvance=25 page=0 chnl=0 letter="段"
+char id=20301 x=0 y=24 width=25 height=23 xoffset=0 yoffset=5 xadvance=26 page=0 chnl=0 letter="位"
+char id=22522 x=25 y=95 width=24 height=23 xoffset=0 yoffset=5 xadvance=25 page=0 chnl=0 letter="基"
+char id=30784 x=50 y=73 width=23 height=23 xoffset=0 yoffset=5 xadvance=24 page=0 chnl=0 letter="础"
+char id=22870 x=0 y=0 width=25 height=23 xoffset=0 yoffset=5 xadvance=26 page=0 chnl=0 letter="奖"
+char id=21169 x=50 y=25 width=23 height=23 xoffset=0 yoffset=5 xadvance=24 page=0 chnl=0 letter="励"
+char id=21152 x=0 y=72 width=24 height=23 xoffset=0 yoffset=5 xadvance=25 page=0 chnl=0 letter="加"
+char id=25104 x=0 y=96 width=24 height=23 xoffset=0 yoffset=5 xadvance=25 page=0 chnl=0 letter="成"
+char id=22320 x=0 y=48 width=24 height=23 xoffset=0 yoffset=5 xadvance=25 page=0 chnl=0 letter="地"
+char id=20027 x=25 y=72 width=24 height=22 xoffset=0 yoffset=5 xadvance=25 page=0 chnl=0 letter="主"
+char id=32 x=0 y=0 width=0 height=0 xoffset=0 yoffset=0 xadvance=20 page=0 chnl=0 letter=" "
+char id=9 x=0 y=0 width=0 height=0 xoffset=0 yoffset=0 xadvance=160 page=0 chnl=0 letter="	"
+
+kernings count=0

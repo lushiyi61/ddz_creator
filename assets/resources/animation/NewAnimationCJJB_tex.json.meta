@@ -1,0 +1,7 @@
+{
+  "ver": "1.0.0",
+  "uuid": "97dd9840-254f-4b1a-9d1f-787f75c7da7b",
+  "atlasJson": "{\"width\":512,\"SubTexture\":[{\"width\":279,\"y\":87,\"height\":68,\"name\":\"animation_got_cj1\",\"x\":1},{\"width\":279,\"y\":157,\"height\":68,\"name\":\"animation_got_cj2\",\"x\":1},{\"width\":126,\"y\":87,\"height\":128,\"name\":\"animation_got_c11\",\"x\":282},{\"width\":294,\"y\":1,\"height\":84,\"name\":\"animation_got_cj112\",\"x\":1}],\"height\":256,\"name\":\"NewAnimationCJJB\",\"imagePath\":\"NewAnimationCJJB_tex.png\"}",
+  "texture": "32019209-660b-4d68-969a-4fd871b04180",
+  "subMetas": {}
+}

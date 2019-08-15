@@ -1,0 +1,7 @@
+{
+  "ver": "1.0.0",
+  "uuid": "27a8f227-8329-45b5-a9a9-b9819cd294e6",
+  "atlasJson": "{\"width\":512,\"imagePath\":\"NewAnimationdoudizhudiyifu01_tex.png\",\"height\":256,\"name\":\"NewAnimationdoudizhudiyifu01\",\"SubTexture\":[{\"width\":82,\"y\":1,\"height\":17,\"name\":\"animation_got_yi\",\"x\":296},{\"width\":258,\"y\":87,\"height\":84,\"name\":\"animation_got_diju01\",\"x\":1},{\"y\":1,\"frameWidth\":294,\"x\":1,\"frameHeight\":84,\"width\":293,\"frameY\":0,\"height\":84,\"name\":\"animation_got_dijumohu01\",\"frameX\":-1},{\"width\":63,\"y\":87,\"height\":63,\"name\":\"animation_got_sixing\",\"x\":261}]}",
+  "texture": "fa80b2f8-a6e5-4b23-927c-2d2a99f2b34c",
+  "subMetas": {}
+}

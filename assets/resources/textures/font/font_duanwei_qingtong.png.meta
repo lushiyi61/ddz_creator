@@ -1,0 +1,30 @@
+{
+  "ver": "1.0.0",
+  "uuid": "ab515c6f-2f99-43bf-834e-fa307189a708",
+  "type": "sprite",
+  "wrapMode": "clamp",
+  "filterMode": "bilinear",
+  "subMetas": {
+    "font_duanwei_qingtong": {
+      "ver": "1.0.3",
+      "uuid": "17b63baa-d09e-4ad6-890b-40180c2a3366",
+      "rawTextureUuid": "ab515c6f-2f99-43bf-834e-fa307189a708",
+      "trimType": "custom",
+      "trimThreshold": 1,
+      "rotated": false,
+      "offsetX": 0,
+      "offsetY": 0,
+      "trimX": 0,
+      "trimY": 0,
+      "width": 128,
+      "height": 64,
+      "rawWidth": 128,
+      "rawHeight": 64,
+      "borderTop": 0,
+      "borderBottom": 0,
+      "borderLeft": 0,
+      "borderRight": 0,
+      "subMetas": {}
+    }
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "ver": "1.0.0",
+  "uuid": "43816a35-6d2f-4ea9-9d0c-dcb0d9f4f7da",
+  "atlasJson": "{\"SubTexture\":[{\"width\":170,\"y\":1,\"height\":83,\"name\":\"shule\",\"x\":1},{\"width\":169,\"y\":86,\"height\":83,\"name\":\"yingle\",\"x\":1}],\"width\":256,\"imagePath\":\"NewAnimationDDZshule_tex.png\",\"name\":\"NewAnimationDDZshule\",\"height\":256}",
+  "texture": "713a6864-e8ee-4f6a-8c7a-94ad881a43df",
+  "subMetas": {}
+}

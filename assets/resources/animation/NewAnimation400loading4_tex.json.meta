@@ -1,0 +1,7 @@
+{
+  "ver": "1.0.0",
+  "uuid": "cb7573d6-74fe-4aa5-9719-cc0c0736b059",
+  "atlasJson": "{\"width\":1024,\"imagePath\":\"NewAnimation400loading4_tex.png\",\"height\":2048,\"name\":\"NewAnimation400loading4\",\"SubTexture\":[{\"y\":1405,\"frameX\":-9,\"frameHeight\":336,\"frameY\":-12,\"width\":231,\"frameWidth\":250,\"height\":311,\"name\":\"animation_got_NON\",\"x\":560},{\"width\":557,\"y\":1405,\"height\":630,\"name\":\"animation_got_DIZHU\",\"x\":1},{\"width\":117,\"y\":1561,\"height\":111,\"name\":\"animation_got_DOUZI\",\"x\":793},{\"width\":94,\"y\":1561,\"height\":136,\"name\":\"animation_got_P1\",\"x\":912},{\"width\":166,\"y\":1405,\"height\":154,\"name\":\"animation_got_P2\",\"x\":793},{\"width\":625,\"y\":1,\"height\":1402,\"name\":\"animation_got_GUANG\",\"x\":1}]}",
+  "texture": "",
+  "subMetas": {}
+}

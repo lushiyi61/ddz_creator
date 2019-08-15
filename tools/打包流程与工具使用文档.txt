@@ -1,0 +1,62 @@
+﻿打包流程与工具使用：
+
+需要注意的文件:
+       build前注意文件[WXBuilder.py、config.json、GameConfig.js]
+       build后注意文件[game.js、html5文件夹、版本命名res压缩包]
+
+一、build前
+
+       1.WXBuilder有以下参数:
+             -m 环境配置 dev: 开发环境内网测试 test: 外网测试 
+             -r 资源版本号 如果不设置每次执行，配置中的资源版本号都会+1
+             -c 渠道号 默认CN_WEB_WECHAT
+             -s 要执行哪几步  1只修改配置 2发布并打包 默认0发布并打包
+             -a 自动增加资源版本号 0不自动 1自动 默
+
+             例如：
+                    需求:  打703版本的外网测试包
+                    python WXBuilder.py -m test -r 100
+
+             注意:  直接运行发布脚步默认打的是开发环境内网测试包
+                    python WXBuilder.py
+       
+       2.config.json
+             打包之前如果改了一些比较重要的配置需要到config.json里面进行修改再打包
+             例如：
+                    app_id                            小游戏appId
+                    host_pay_callback           支付成功回调地址
+                    host_pay_name               支付请求订单
+                    等等....
+     
+       3.GameConfig.js
+             WXBuilder.py运行的时候会根据config.json的配置修改GameConfig.js的配置
+             所以有些配置改变了需要到config.json里面去修改，否则打包的时候GameConfig.js
+             的配置也会被覆盖掉           
+
+一、build后
+       
+       1.publish下html5文件夹
+             在微信开发者工具中打开的目录为publish/html5
+
+       2.game.js
+             自动修改场景：现在打内外网测试包不需要去修改game.js里面的资源服务器地址，
+             WXBuilder.py中会自动进行修改。
+             例如：window.REMOTE_SERVER_ROOT = 'http://139.129.203.158/media/wxgame/CN_WEB_WECHAT/712/static/';
+             
+             手动修改场景：当需要用到自己搭建的资源服务器地址的时候，需要改成自己服务器
+             的地址，要加端口号，并且文件夹中需要有media/wxgame/CN_WEB_WECHAT/703/static/
+             的文件路径。
+             例如：window.REMOTE_SERVER_ROOT = 'http://192.168.102.218:80/media/wxgame/CN_WEB_WECHAT/712/static/';        
+             
+       3. 版本命名res压缩包
+             builde完了之后把publish目录下的zip压缩包整个发给服务器那边，由服务器那边进行更新
+             
+             当用自己服务器作为资源服务器时，把zip压缩包放到文件夹static下直接进行解压即可
+
+三、上传微信小游戏cdn
+      确认服务器那边更新了对应版本的zip压缩包资源了之后，将html5目录下的代码直接从微信
+      开发者工具中进行编译，自测确定没问题之后点击上传，将代码包上传至微信cdn上
+
+四、运营后台的版本迭代
+      确认了版本迭代了之后，运营后台对应的版本号需要改成研发上传的对应版本号，并得到新的
+      微信小游戏码

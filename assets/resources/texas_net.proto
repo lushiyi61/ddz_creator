@@ -1,0 +1,3114 @@
+package texas.net.proto;
+
+option java_package="com.qufan.texas.service";
+option java_outer_classname="TexasNet";
+
+// 服务器之间的消息有抬头, 用大写字母标示 router -> R   gateway -> G   web -> W
+// example : web -> router : WRxxxNtf
+
+// 已签名的body
+message SignedBody{
+    optional string sign=1;
+    optional bytes body=2;
+}
+
+
+// 对body进行签名包装
+message SafeShell{
+    optional int32 sign_type = 1;
+    optional int32 encrypt_type = 2;
+    optional int32 uid = 3;
+    optional int32 random = 4;
+    optional int64 time = 5;
+    optional int32 time_zone = 6;
+    optional int32 version = 7;
+    optional string channel = 8;
+    optional bytes extra = 9;
+    optional string sign = 10;
+    optional bytes body = 11;
+}
+
+
+//定时心跳
+message UserHeartBeatReq {
+}
+
+message UserHeartBeatRsp{
+}
+
+
+
+// 发送全区广播
+message UserBroadcastReq {
+    optional string content = 1; // content of the broadcast
+}
+
+message UserBroadcastRsp {
+}
+
+
+// 台桌内聊天 cmd 145
+message DeskChatReq {
+    optional string content = 1;
+    optional int32 content_type = 2;      // content 类型，0: 系统配置表情；1: 语音 2: 文本（用户输入文本） 3.系统配置文本
+}
+message DeskChatRsp {
+}
+
+// 台桌内聊天通知 cmd: 146
+message EvtDeskChat {
+    optional int32 op_uin = 1;
+    optional string nick  =2;
+    optional string content =3;
+    optional int32 uin =4;
+    optional int32 deskid=5;
+    optional int32 room_id=6;
+    optional int32 gender = 8;
+    optional string portrait = 9;           // 头像url
+    optional int32 content_type = 10;       // content 类型，0: 系统配置表情；1: 语音 2: 文本：用户输入  3.系统配置文本
+    optional int32 voice_time = 11;         // 语音时长
+}
+
+
+// cmd: 330
+// 通知下载资源
+message DownloadableAssetsListNtf {
+     message Inner {
+          optional string md5sum = 1;            // md5(UNITY_PAY_SECRET | md5(file))
+          optional string url = 2;               // 资源下载地址
+          optional int32 type = 3;               // 1头像，2挂件，3赢牌动画, 4 卡片
+          optional int32 asset_id = 4;           // 资源ID
+     }
+     repeated Inner assets = 1;
+}
+
+
+
+
+// cmd: 1126
+// 通用的文案提醒
+message PromptEvt {
+    optional int32 prompt_id = 1;
+    optional string text = 2;
+}
+
+// 跳转退桌
+// 服务端专用
+message RedirectExitDeskReq {
+    optional int32 uin = 1;
+    optional int32 desk_id = 2;              // 要退桌的ID
+    optional bytes body = 3;                 // 转发回来的body
+    optional int32 ret = 4;                  // 跳转返回的时候是否需要带上分组信息 -1未无分组
+    optional int32 cmd = 5;                  // 处理完后跳转回哪个命令字
+    optional int32 room_type = 6;            // 处理完后跳转回哪个命令字
+}
+
+message RedirectExitDeskRsp {
+    optional int32 ret_code = 1;             // 退桌的返回码
+    optional bytes body = 2;                 // 透传的包体
+}
+
+message HallSelectPlayModeReq{
+}
+message HallSelectPlayModeRsp{
+    message RoomInfo{
+        optional int32 room_id = 1;            // room id
+        optional int64 cur_online =2;          // 当前在线人数
+        optional int64 play_mode = 3;         // 区分玩法
+    }
+    optional int32 quick_start = 1;          // 快速开始指向   1:经典玩法, 2:癞子玩法, 3:不洗牌玩法
+    repeated RoomInfo room = 2;
+}
+
+message QuickAllocRoomIdReq{
+    optional int64 play_mode = 1;       // 选择玩法
+}
+message QuickAllocRoomIdRsp{
+    optional int32 room_id = 1;
+}
+
+
+message KickOutPlayersReq {
+    optional int32 desk_id = 1;
+    repeated int32 uin_list = 2;
+}
+
+
+
+
+// 拉取版本更新消息
+message LatestVersionReq {}
+message LatestVersionRsp {
+    optional bool is_latest = 1;                // 是否最新版本
+    optional string version = 2;                // 最新版本号
+    optional string msg = 3;                    // 新版本功能介绍
+    optional string download_url = 4;           // 下载地址
+}
+
+
+message InviterInfo {
+    optional int32 inviter_uin = 1;               // 邀请者的uin
+    optional int32 inviter_type = 2;              // 邀请类型    1001邀请有礼 1006国庆红包 1007国庆红包通过二维码
+}
+
+// 微信小程序用户注册
+//cmd = 703
+message WXAUserRegReq {
+    optional string access_token = 1;   // 德州服务器登录凭证
+    optional string encrypted_data = 2; // 包括敏感数据在内的完整用户信息的加密数据
+    optional string iv = 3;         	// 初始向量
+    optional string channel = 4;    	// 渠道号（通过channel获取appid）
+    optional int32 version = 5;       	// version
+    optional string os = 6;           	// 系统
+    optional string device_id = 7;     	// 设备的唯一标识
+    optional int32 res_version = 8;
+    optional string res_md5 = 9;
+    optional int32 inviter = 10;               // 邀请者的uin
+    optional InviterInfo inviter_info = 11;    // 邀请者信息
+}
+
+// 微信小游戏SDK用户注册
+message WXGameUserRegReq {
+    optional string sign = 1;       	// 签名
+    optional string timestamp = 2; 	 	// 时间戳
+    optional string user_info = 3;		// 用户信息(加密数据)
+    optional string channel = 4;    	// 渠道号
+    optional int32 version = 5;    		// version
+    optional string os = 6;      		// 系统
+    optional string device_id = 7; 		// 设备的唯一标识
+    optional int32 res_version = 8;
+    optional string res_md5 = 9;
+}
+
+// Just ForTest cmd=3
+message UserLoginReq{
+    optional int32 uin = 1;
+}
+
+//版本配置模块的信息
+message ModuleConfig {
+    optional int64 type = 1;            //模块的类型(返回类型id，1为新手福利, 2为记牌器, 3为关注有礼 14国庆红包 15牌桌内的任务系统 16好友房 17兑换地址)
+    optional string desc = 2;           // 模块的备注
+    optional int64 flag = 3;            // 当前模块是否可用，0为不可用，1为可用
+}
+
+//国庆红包 登陆相关信息
+message NationalDayBonusesMsg {
+    optional int32 in_period = 1;                    // 是否在活动期间 1是 0否  为0时下面所有信息为空
+    optional int32 first_login = 2;                  // 活动期间首次登录 1是 0否 为0时 3、4信息为空
+    optional int32 first_bonuses = 3;                // 首次登录红包 单位(分)
+    optional ComShareInfo share = 4;                 // 红包翻倍分享
+    
+    optional DDZNationalDayBonusesMsg info = 5;      // 活动信息
+}
+
+//500版本赛事引导的信息
+message MatchGuideInfo {
+    optional int32 status = 1;           		     // 赛事引导状态 0未引导 1已引导
+    optional int32 exit_match_rewards = 2;           // 退赛能获得的奖券
+    optional string continue_name = 3;      		 // 继续挑战获得的称号
+    optional int32 common_rewards_diamond = 4;       // 全员奖励钻石量
+}
+
+// app 620 新手任务礼包信息
+message App620NewUserPlayTask{
+    optional int32 status = 1;                      // 1: 没有参与游戏, 2: 参与游戏未领奖, 3: 已领奖
+}
+
+// app 620 闪屏信息
+message App620FlashScreenConf {
+    optional int32 status = 1;          // 1: 开启
+    optional int32 stay_sec = 2;        // 停留秒数
+    optional string img_url = 3;        // 资源路径
+}
+
+//登录注册统一响应
+message UserLoginRsp {
+    optional int32 uin = 1;                             // user id
+    optional string key = 2;                            // 密码
+    optional int32 old_roomid = 3;                      // 给断线重连用的
+    optional int32 room_type = 4;                       // 给断线重连用的, 房间类型 0无, 1:ddz
+    optional SignedBody config = 5;                     // 游戏配置
+    optional OtherUserInfoRsp simple_user_info = 6;     // 返回一些个人信息
+    optional bool blocked = 7;                          // 是否被封 0否 1是
+    optional bool is_register= 8;                       // 是否是注册
+    optional int32 desk_id = 9;                         // 玩家当前所在的牌桌
+	optional int32 unread_msg_num = 10;                 // 未读邮件数量
+	optional DDZFreshManGiftRsp gift_info = 11;         // 登录时通知客户端福利信息
+    optional int32 in_game = 12;                        // 玩家当前所在牌桌中是否在打牌 0否 1是
+    repeated ModuleConfig module = 13;           		// module config
+    optional LeaderBoardInfo user_board_info = 14;      // 排行榜相关数据
+	repeated EvtBroadCast broadcast = 15;               // 登录即传需要广播的数据
+    optional int32 is_arraigned = 16;                   // 是否为提审版本
+    optional int32 free_times_pop = 17;                 // 弹窗周期       为0为空 关闭弹窗
+    optional int32 reject_times_pop = 18;               // 拒绝后弹窗时间 为0为空 关闭弹窗
+    optional int32 wx_subscribe_gift_max = 19;			// 公众号关注有礼最高领取金币值
+    optional string ban_info = 20;			            // 被封号文案
+    optional int32 endgame_level = 21;                  // 残局通过数
+    optional bool red_packet_switch = 22;               // 红包开关
+    optional bool diamond_activity_switch = 23;         // 钻石活动开关
+    optional string open_id = 24;                       // 用戶open_id
+    optional NationalDayBonusesMsg bonuses1001 = 25;    // 国庆红包 登陆相关信息
+    optional bool new_endgame_notify = 26;              // 新残局提醒
+	// APP 新增
+	optional string invite_code = 127;                   // 邀请码
+    optional int32 account_bind_status = 128;            // 帐号绑定状态. 果盘，QQ
+    optional int32 remain_times = 129;                   // 转盘的剩余可转次数
+    optional int32 score = 130;                          // 积分
+    optional int32 pokerface = 131;                      // 付费表情可使用天数
+    optional string portrait = 132;                      // 头像url 分三种情况:1.老版本新用户此值为空.2.真实url地址.3.IMG+数字 代表新版本的新注册用户，需判断用户性别从而获取随机头像，如IMG1
+    optional int32 online = 133;                         // 在线人数
+    optional int64 max_history_win_chips64 = 134;        // 最大赢取筹码数 int64版
+    optional int64 diamond = 135;                        // 钻石数量
+    optional int32 contest_credit = 136;                 // 比赛积分
+    optional int32 anti_stealth = 137;                   // 破隐卡数量
+    optional int32 event_id = 138;                       // 赛事ID，断线重连用
+    optional int32 event_exit_reason = 139;              // 比赛中被踢出来的 reason
+	optional string promotion_code = 140;				// 玩家的代理商邀请码 
+	optional int32 is_new_user = 141;					// 是否是新注册玩家 1是 0否 渠道版本填写邀请码专用
+	optional int32 first_recharge_flag = 142;			// 首冲标志 1是存在  0是不存在
+	optional int32 remain_time = 143;					// 首冲剩余时间
+	optional string first_recharge_url = 144;			// 首冲图片
+	optional int32 code_money = 145;						// 绑定邀请码送的金币
+	optional string cnd_path = 146;						// cdn地址
+	optional int32 lhd_player_count=147;		// 龙虎斗房间人数
+	optional int32 show_lucky_wheel_or_not = 148;		// 是否展示大转盘ICON
+  	optional int32 IsRightTime = 149;							  // 当前可抽奖，0 为抽奖时间段 1为不在抽奖时间段 -1 表示大转盘功能不开启
+	optional int32 left_time = 150;								  // 当前阶段剩余时间，若不在抽奖时间段返回剩余秒数 -1 表示大转盘功能不开启
+	optional string day_reward_start_time = 151;			// 白天抽奖开始时间 字符串格式为 xx:xx
+  	optional string day_reward_end_time = 152;			  // 白天抽奖结束时间	字符串格式为 xx:xx
+  	optional string night_reward_start_time = 153;		// 夜晚抽奖开始时间 字符串格式为 xx:xx
+  	optional string night_reward_end_time = 154;			// 夜晚抽奖结束时间	字符串格式为 xx:xx
+  	optional int32 show_cumulate_login_or_not = 155;	// 是否展示累计登陆奖励 0为展示 1为不展示
+	optional int32 cumulate_login_reward = 156;			// 累计登陆奖励是否有未领取的奖励 1为有未领取，2为已经领取，0为不可领取
+	optional int32 is_new_reg_user = 157;					  // 是否是新注册玩家 1是 0否
+	optional int32 show_third_pay_or_not = 158;			// 是否显示第三方支付1是 0否
+	optional int32 game_list_type = 159;							// 单玩包或集成包1单玩包 2集成包
+	optional string up_game_list = 160;							// 上方栏位显示游戏列表-小图标 炸金花:1 斗牛经典:2 炸金牛:3 德州扑克:4 推豹子:5 是否加锁:0不锁 1锁住 格式如1:0|2:0|3:0
+	optional string down_game_list = 161;						// 下方栏位显示游戏列表-大图标 炸金花:1 斗牛经典:2 炸金牛:3 德州扑克:4 推豹子:5 是否加锁:0不锁 1锁住 格式4:1|5:1
+	optional int32 login_type = 162;									// 登陆方式:1游客 2:QQ 8:微信
+	optional string phone = 163;											// 电话号码
+	optional string address = 164;									  // 地址
+	optional string post_code = 165;									// 邮编
+	optional int64 fucard_num = 166;                 // 剩余福卡数量
+	optional string real_name = 167;									// 名字
+	optional int32 show_invite = 168;								// 是否显示绑定邀请人界面
+	optional int32 show_all_func_or_not = 169;				// 是否展示所有功能 0 - 不展示 1- 展示
+	optional int32 ddz_match_level = 170;						// 个人比赛等级
+	optional int32 ddz_match_exp = 171;							// 个人比赛经验
+	optional DDZMatchConfig ddz_match_config = 172;				// 比赛等级详情配置
+	optional int32 is_bind_wx = 173;				// 绑定微信否 0-未绑定 1-绑定
+	optional int32 show_chance_card_or_not = 174;		// 是否展示刮刮卡 0-不展示 1- 展示
+	optional int32 user_identity = 175;		// 实名认证: 0 - 未认证 1-审核中 2-已认证
+	optional int32 lucky_wheel_play_times = 176; //剩余次数
+	optional int32 lucky_wheel_play_amount = 177; // 抽奖消耗数量 剩余次数为0 时此值也为0
+	optional int32 lucky_wheel_play_type = 178; //抽奖类型 0 - 免费 1 - 金币 2 - 福卡 剩余次数为0 时此值也为0
+	optional string lucky_wheel_tips = 179; // 提示语
+	optional string lucky_wheel_open_days = 180; // 大转盘开启日期 格式:2018-08-01|2018-08-07
+	optional string lucky_wheel_open_times = 181; // 大转盘开启时间 格式:18:00|22:00
+	optional int32 lucky_wheel_all_times = 182; //大转盘总次数
+	optional int32 view_times = 183;                     // 观看次数
+    optional string nick = 184;                           // user nick
+    optional int32 sex = 185;                             // user sex
+    optional int64 gold = 186;                            // user gold
+    optional int32 win = 187;                             // user win times
+    optional int32 lose = 188;                            // user lose times
+    optional int32 day = 189;                             // user login days
+    optional string title = 190;                          // user  title
+    optional int32 vip_level = 191;                      // user vip level
+    optional bool got_day_reward = 192;                  // user day reward flag
+    optional bool got_vip_day_reward = 193;              // user vip_day_reward flag
+    optional bool recharged = 194;                       // recharge?
+    optional int32 play_over_times = 195;                // 玩到底的次数
+    optional int32 play_times = 196;                     // 玩的次数
+    repeated int32 max_history_cards = 197;              // 历史最大手牌
+    optional int32 max_history_win_chips = 198;          // 最大赢取筹码数
+    optional int32 level =199;                           // 等级
+    optional SignedBody app_config = 200;               // 游戏配置
+    optional App620NewUserPlayTask app_new_user_play_task = 201;    // app 620 新手任务礼包信息
+    optional int32 app_new_user_reg_gift_click_status = 202;    // app 620 新手注册礼包点击信息 1: 未点击, 2: 点击
+    optional App620FlashScreenConf app_620_flash_screen = 203;    // app 620 闪屏需求
+	// wx ddz
+    optional MatchGuideInfo match_guide_info = 27;      // 赛事引导相关信息
+    repeated NewUserGuidance new_user_guidance = 28;    //引导
+    optional int32 total_level = 29;                    // 当前残局总关数
+    optional int32 task_need_notify = 30;               // 任务系统是否需要提示
+    optional int32 first_guide_status = 31;             // 第一赛季引导状态 0未参与赛事引导 1有参与赛事引导
+} 
+
+// 获取其他人的资料
+message OtherUserInfoReq {
+    optional int32 other_uin =1;
+}
+message OtherUserInfoRsp {
+    optional string nick = 1;              			// 昵称
+    optional int64 gold = 2;                   		// 金币
+    optional int64 diamond_amount = 3;				// 钻石
+    optional int32 win = 4;                  		// 获胜次数
+    optional int32 lose =5;                     	// 失败次数
+    optional string title= 6;						//
+    optional int32 sex = 7;    						// 性别
+    optional string portrait = 8;             		// 头像url 
+    optional int32 play_level=9;               		// 等级
+    optional bool is_friend = 10;               	// 是否好友
+    optional int32 play_times = 11;              	// 玩牌次数
+    optional string win_prob =12;             		// 胜率
+    optional int32 view_times = 13;            		// 旁观次数
+    optional int32 win_times_streak = 14;        	// 历史最高连胜
+    optional int32 win_times_spring = 15;       	// 春天次数
+    optional int64 max_history_multi_num = 16;  	// 历史最大倍数
+    optional int64 career_win_score = 17;     		// 生涯累计得分
+    optional int32 career_bomb_times = 18;     		// 生涯炸弹
+    optional int64 career_win_gold = 19;            // 生涯累计输赢金币
+    optional int32 uin = 20;                        // 玩家uin
+    optional int32 match_level = 21;                // DDZ赛事段位信息 从青铜一阶到最强王者段位===>10~140 以10的跨度
+    optional int32 dan_grading = 22;                // DDZ具体赛事段位范围 10:青铜 20:白银 30:黄金 40:钻石 50:宗师 60:最强王者
+    optional int32 star_number = 23;                // 星星个数  -1: 表示没有星星             
+    optional int32 lottery_ticket = 24;             // 玩家奖券
+	optional int32 match_max_level = 25;			// 玩家历史最高段位
+    optional string icon_frame = 26;                // 头像框
+    optional MatchAllLvInfo all_lv_info = 27;       // 630赛事信息
+}
+
+
+message ErrorCodeInfo {
+    optional int32 id = 1;
+    optional string desc = 2;
+}
+
+
+message GameConfRsp {
+    optional int64 timestamp = 1; // timestamp
+
+    //标准房类型的房间id以及配置
+    message RoomInfo {
+        optional int32 room_id = 1;            // room id
+        optional int64 carry_min = 2;          // 最小buy
+        optional int64 carry_limit = 3;        // 最大buy
+        optional string carry_desc = 4;        // 带入限制描述
+        optional int32 seat_limit = 5;         // 几人桌
+        optional int32 room_level = 6;         // 房间等级 1新手 2初级 3普通 4中级 5高级 6顶级
+        optional int64 cur_online =7;          // 当前在线人数
+        optional int64 enter_limit = 8;        // 进入房间最下金币携带
+        optional int64 base_score = 9;         // 底分
+        optional int64 cap_score = 10;         // 封顶分数
+        optional int64 enter_fee = 11;         // 服务费
+	    optional int64 play_mode = 12;         // 玩法标记
+        optional bool show_tag = 13;           // 展示标签
+    }
+    repeated RoomInfo room = 2; // room infos
+    
+
+    message CheckNewVersion {
+        optional bool is_latest = 1;                // 是否最新版本
+        optional string version = 2;                // 最新版本号
+        optional string msg = 3;                    // 新版本功能介绍
+        optional string download_url = 4;           // 下载地址
+    }
+    optional CheckNewVersion check_new_version = 3;	// 检查版本更新
+    repeated ErrorCodeInfo error_list = 4;        	// error list
+    
+    // 好友房独有room_id。好友时，请使用此room_id
+    optional int32 friend_room_id = 5;           	// 单独标记好友房room_id
+
+    message StoreConf {
+        message Item {
+            optional string item_id = 1;        // 计费点
+            optional int64 price = 2;           // 价格
+            optional int64 amount = 3;          // 数量
+            optional string img_name = 4;       // 图片名称
+			optional int64 add_amount = 5;       // 赠送数量
+        }
+        repeated Item gold_items = 1;           // 金币
+        repeated Item store_items = 2;          // 钻石购买金币
+    }
+    optional StoreConf store_conf = 6;          // 商场配置
+	
+	//分享图片地址，多张图片
+	message ShareImgConf{
+		optional string img_url = 1;
+		optional string title = 2;
+		optional int32 id = 3;
+	}
+	repeated ShareImgConf shareimg_conf = 7;  	//分享图片配置	
+
+	//ShareMsg，v1版本暂时不用，先做保留
+    message ShareMsg {                    // 分享内容
+        optional int32 type = 1;          // 类型，1: 记牌器分享，2: 记牌器邀请
+        optional string title = 2;        // 标题
+        optional string img_url = 3;      // 图片
+    }
+    repeated ShareMsg share_msg = 8;     // 分享弹窗内容
+
+    optional CardCounter card_counter = 9;      // 记牌器信息，暂时只传counts
+    optional int32 friend_room_id_no_shuffle = 10;           	// 好友房不洗牌玩法room_id
+}
+
+// cmd: 501, 私人定制房间的剩余时间提醒
+message CountDownPromptEvt {
+    optional int32 remain_time = 1;             // 牌局剩余时间
+    optional string text = 2;                   // 提示文案
+}
+
+
+
+message CustomMade{
+    optional string name = 1;
+    optional int32 battle_type = 2;         //对局类型： 1经典场 2.癞子玩法
+    optional int32 max_round = 3;           //最大局数
+    optional int64 cap_score = 4;           //地主封顶分数
+    optional int32 allow_view = 5;          //是否允许旁观 0 否， 1是
+    optional int64 enter_fee = 6;           // 入局服务费
+    optional int32 base_score = 7;          // 初始分
+    optional int32 allow_ad = 8;            // 是否允许使用记牌器
+    optional int32 allow_volte = 9;         // 是否允许使用语音
+    optional int32 allow_auto_play = 10;    // 是否允许托管
+    optional int32 allow_show_hands = 11;   // 是否允许明牌
+}
+
+// ====================================================================================================================
+// ===================                              DDZ 命令字 开始                                  ===================
+// ====================================================================================================================
+
+// cmd 6500：进桌请求 30000：630赛事进桌
+message DDZEnterDeskReq {
+    optional int32 room_id = 1;         // 房间配置id 残局30001
+    optional int32 desk_id = 2;         // 进入指定牌桌，
+    optional int32 entry_type = 3;      // 进桌类型，0: 默认值，比如断线重连或者直接进桌； 1: 换桌(内部)
+    optional int32 start_type = 4;      // 开始打牌的类型：1：正常开始， 2：明牌开始
+    optional string req_uuid = 5;       // 内部使用（比如内部转发时订阅发布模式）
+    optional int32 just_view = 6;       // 是否是旁观
+    optional int32 desk_mode = 7;       // 房间类型。1标准房， 2好友房
+    optional int32 src_desk_id = 8;     // 内部使用，换桌前的桌子id
+    optional int32 new_desk = 9;       	// 是否创建牌桌 0否， 1:客户端创建牌桌进桌内部使用 2:服务器内部创建使用
+    optional CustomMade cm_data = 10;   // 客户端创建好友房间时必须填写
+    optional int32 show_multi = 11;     // 玩家的明牌开始 X倍数
+    optional int32 ret_cmd = 12;        // 内部使用，用于转发后区分应该响应的客户端原始命令字。
+	optional int32 uin = 13; 			// 进桌玩家的uin
+    optional int32 is_match = 14; 	    // 是否是赛事类型 0：普通 1：赛事
+    optional int32 endgame_level = 15; 	// 残局关卡
+}
+
+message DDZEnterDeskRsp {
+    optional int32 desk_mode = 1;             // 1.ddz房间类型 1标准房 2 好友房 3 赛事房间 4 残局
+    optional CustomMade cm_data = 2;
+}
+
+// 公用的分享信息
+message ComShareInfo{ 
+    optional string str = 4;            // 分享文案  
+    optional string icon = 5;           // 分享图        
+    optional int64 share_id = 6;        // 分享图文id    
+}
+
+message ProgressReportMsg {
+    optional string task_desc = 1;         // 任务描述
+    optional string schedule_desc = 2;     // 进度描述
+    optional int32 status = 3;             // 0未完成 1已完成
+}
+
+// 连胜任务牌桌内信息
+message WinStreakDeskMsg {
+    optional int32 status = 1;             // 1默认 2有红点 3奖励未领取 4灰色
+    optional string status_desc = 2;       // 展示文案
+    optional int32 streak = 3;             // 当前连胜(有进桌弹出气泡 没有不弹)
+    optional int32 aim = 4;                // 当前目标(有进桌弹出气泡 没有不弹)
+}
+
+// cmd: 6512, 进桌通知
+message DDZEnterDeskEvt {
+    optional int32 desk_id = 1;
+    optional int32 room_id = 2;
+    optional int32 status = 3;                      // 游戏状态 0:准备中 10:叫分中 20:加倍中 30:游戏中
+    repeated PlayerInfo player_info = 4;            // 桌子上所有的玩家信息
+    optional int32 next_uin = 5;                    // 轮到谁了， 断线重连有效
+    repeated CardInfo card_list = 6;                // 重连上走的场上卡牌信息
+    repeated int32 hole_cards = 7;                  // 重新链接后显示的地主底牌
+    optional int32 multiple = 8;                    // 总倍数
+    optional int32 landlord_uin = 9;                // 地主id
+    optional int32 op_left_time = 10;               // 玩家操作剩余过期时间
+    optional int32 uin = 11;                        // 进桌者的id
+    optional int32 room_type = 12;                  // 房间类型 1. 斗地主房
+    repeated DDZLastCardsInfo last_cards = 13;      // 历史出牌记录, 第一个是上手牌，第二个是上上手牌
+    optional int32 last_uin = 14;                   // 上手牌玩家的id
+    optional int32 desk_mode = 15;                  //  1.标准模式 2.好友模式 3.赛事模式 4.残局 5.630赛事
+    repeated int32 next_uin2 = 16;                  // 加倍阶段可以操作的人员
+	optional CustomMade cm_data = 17;                // 在这里面 
+    optional int32 max_grab_action = 18;             //当前叫到的最大请地主类型值
+    optional int32 show_multi = 19;                  //玩家的明牌倍数
+    optional string round_id = 20;                    // 牌桌uuid. 牌桌唯一标识
+    optional int32 round_index = 21;                 // 当前局数 从0开始
+    optional int32 over_flag = 22;                  // 整场牌桌结束标记 0否 1是
+    optional int32 master_uin = 23;                 // 房主的uin. 好友房则有房主。没有填充0
+    optional int32 short_op_flag = 24;              // 当前操作者标记 0；无 1.当前操作者要不起。
+    optional CardCounter card_counter = 25;         // 记牌器信息
+    optional int32 predict_time = 26;               // 预计匹配时间
+    optional int32 matching_time = 27;               // 已匹配时间
+    optional int32 matching_timeout = 28;            // 匹配超时时间
+    optional int32 card_counter_time = 29;           // 记牌器弹窗显示时间
+    optional ComShareInfo share_info = 30;           // 好友房分享信息
+    repeated ProgressReportMsg report = 31;          // 参赛有礼 任务进度 任务奖励都被领取后不传
+    optional ComShareInfo ad_share = 32;             // 牌桌内记牌器分享信息
+    optional int32 dipai_multi = 33;                 // 底牌翻倍倍数
+    optional int32 dipai_multi_type = 34;            // 底牌翻倍类型 1:大王 2:小王 3:同花 4:顺子 5:大王小王 6:同花顺 7:三张
+    optional int32 has_get_packs = 35;               // 是否获取了邀请有礼大礼包  1:有 0:没有
+    optional bool need_pop_card_counter = 36;        // 是否显示记牌器，True为显示False为不显示
+    optional int32 endgame_play_times = 37;          // 残局闯关次数
+    optional int32 endgame_level = 38;               // 残局关卡
+    optional int32 user_endgame_level = 39;          // 用户闯过最高的关卡
+    optional int32 desk_ver = 40;                    // 桌子版本 0 500以下 1 500以上 段位去星
+	
+	optional SuperMultiCard super_multi_card = 41;   // 超级加倍卡信息
+    optional bool is_final_round = 42;               // 是不是決勝局，True表示是，False表示不是，用在比賽場
+    optional int32 is_first_card = 43;               // 是不是第一首牌
+    optional WinStreakDeskMsg ws_desk_info = 44;     // 连胜任务 牌桌内显示信息
+    optional int32 multi_min_gold = 45;              // 可以加倍的最少金币数
+    optional bool show_dismiss_vote_btn = 46;        // 是否展示投票解散桌子的按钮
+
+    // APP新增 by Dean 误删
+  	repeated int32 total_remain_cards = 100;	 // 记牌器可见的牌 status为开始游戏时且玩家满足使用条件此字段有值
+  	optional int32 use_card_remember = 101;	   // 是否使用记牌器 0-未使用 1-已使用
+    // APP新增 end
+}
+
+message DDZLastCardsInfo {
+    optional int32 uin = 1;             // 上一手牌是谁出的
+    repeated int32 cards = 2;           // 上一手牌是什么
+    optional int32 action = 3;          // 0: 没有操作；1：出牌；2：不出
+}
+
+// cmd: 6502, 退桌请求
+message DDZExitDeskReq {
+}
+message DDZExitDeskRsp {
+}
+
+// cmd: 6513, 退桌通知
+message DDZExitDeskEvt {
+    optional int32 op_uin = 1;              // 谁退桌了
+    optional int32 reason = 2;              // 0:用户主动发起的退桌 1.牌桌结束（好友房） 2. 被房主剔出房间 3.长时间未准备 4.DDZ赛事匹配超时 5.DDZ赛事牌桌解散 6.好友房投票解散牌桌
+    repeated PlayerInfo player_info = 3;    // 用户
+    optional string prompt = 4;             // 退桌提示语
+}
+
+// 6504 抢地主
+message DDZUserCallReq {
+    optional int32 grab_action = 1;       // 抢地主：-1：还未选择， 0分不抢， 1,2,3,4都是抢地主。每抢一次，发起抢地主的请求在前人基础上+1：（服务端会在广播中告知当前最大分。当叫到4分后，无人可再抢）
+}
+
+message DDZUserCallRsp {
+}
+
+//6508 抢地主通知
+message DDZUserCallEvt {
+    optional int32 op_uin = 1;              // 谁抢了地主
+    optional int32 grab_action = 2;         // 抢地主类型
+    optional int32 landlord_uin = 3;        // 地主uin, 不等于-1时说明地主已经确定
+    optional int32 next_uin = 4;            // 下一个操作者
+    repeated int32 hole_cards = 5;          // 3张底牌
+    optional int32 status = 6;              // 游戏状态
+    repeated int32 next_uin2 = 7;           // 当地主确认后，next_uin2是可以选择加倍或者不加倍的3个人的列表（有地主情况下生效）
+    repeated CardInfo card_list = 8;        // 玩家的牌组信息列表
+    optional int32 op_left_time = 9;        // 玩家操作剩余过期时间
+    optional int32 max_grab_action = 10;    // 桌子中当前抢地主最大的类型值(保持与进桌协议中的字段一致)
+    //optional int32 multiple = 11;           // 当前总倍数（谁收到就是谁的总倍数）----不再使用，由通知同意下发
+    optional int32 first_grab_uin = 12;     // 首叫地主的玩家。便于客户端区分‘叫’‘抢’类型， 默认值0；还没有人首叫
+    optional int32 dipai_multi = 13;                 // 底牌翻倍倍数
+    optional int32 dipai_multi_type = 14;            // 底牌翻倍类型 1:大王 2:小王 3:同花 4:顺子 5:大王小王 6:同花顺 7:三张
+}
+
+// cmd: 6514 加倍请求
+message DDZUserMutiReq {
+    optional int32 do_multi = 1;            // 0:不加倍 1:加倍 2:超级加倍
+}
+message DDZUserMutiRsp {
+    optional string desc = 1;               // 提示语
+}
+
+// cmd: 6515 加倍通知
+message DDZUserMutiEvt {
+    message DoMultiInfo{
+        optional int32 uin = 1;             			// 谁的加倍数据
+        optional int32 result = 2;          			// 是否选择了加倍, 0:不加倍；1:加倍；2:超级加倍
+        optional string desc = 3;           			// 描述
+    }
+
+    repeated DoMultiInfo do_multi = 1;      		// 做了加倍操作的玩家列表
+    optional int32 next_uin = 2;            		// 下一个可以操作的人
+    optional int32 status = 3;              		// 游戏状态 0:准备中 10:抢地主中 20:加倍中 30:游戏中
+    optional int32 op_uin = 4;              		// 谁选择了加倍操作
+    optional int32 op_left_time = 5;        		// 玩家操作剩余过期时间
+    repeated int32 next_uin2 = 6;           		// 剩余可以操作加倍的人的列表，都做出了选择之后则不再生效，进入下一阶段的操作者由next_uin给出
+    optional CardCounter card_counter = 7;  		// 记牌器信息
+    optional SuperMultiCard super_multi_card = 8;   // 当前超级加倍操作的人超级加倍卡信息
+
+	
+	// APP新增 by Dean 误删
+  	repeated int32 total_remain_cards = 100;	 // 记牌器可见的牌 status为开始游戏时且玩家满足使用条件此字段有值
+  	optional int32 use_card_remember = 101;	   // 是否使用记牌器 0-未使用 1-已使用
+	// APP新增 end
+}
+
+// 6505 托管
+message DDZAutoPlayReq {
+    optional int32 auto = 1;               //托管:1，停止托管:0
+}
+
+message DDZAutoPlayRsp {
+}
+
+//6511 托管通知
+message DDZAutoPlayEvt {
+    optional int32 uin = 1;                // 托管者id
+    optional int32 auto = 2;               //托管:1，停止托管:0
+}
+
+// 6506 出牌
+message DDZDiscardReq {
+    repeated int32 cards = 1;       // 出牌牌组,不出时填空列表
+}
+
+message DDZDiscardRsp {
+}
+
+//6510 出牌通知
+message DDZDiscardEvt {
+    optional int32 op_uin = 1;          // 打牌者的uin
+    repeated int32 play_cards = 2;      // 被打出的牌,不出时是空列表
+    optional int32 card_type = 3;       // 牌型,不出时牌型为-1
+    // optional int32 multiple = 4;        // 倍数,打出了特殊牌型后倍数增加----谁收到就是谁的总倍数 --不再使用， 由通知下发
+    optional int32 next_uin = 5;        // 下一个出牌的uin
+    optional int32 status = 6;          // 游戏状态
+    repeated CardInfo card_list = 7;    // 手牌信息,填充
+    optional int32 op_left_time = 8;    // 玩家操作剩余过期时间
+    optional int32 next_auto_buchu = 9; // 下一个出牌玩家自动不出（打不过上家牌) 1：标识自动不要  0: 玩家操作
+    optional int32 short_op_flag = 10;  // 当前操作者标记 0；无 1.当前操作者要不起。
+    optional CardCounter card_counter = 11; // 记牌器信息
+    optional int32 server_replaced = 12; // 服务器代打最后一手牌 1 是 0 否
+    
+    // APP新增 by Dean 误删
+  	repeated int32 total_remain_cards = 100;	 // 记牌器可见的牌 status为开始游戏时且玩家满足使用条件此字段有值
+		// APP新增 end
+}
+
+message PlayerInfo {
+    optional int32 status = 1;              //状态 1010站起， 1018坐下未准备， 1020坐下已准备， 1030游戏中
+    optional string nick = 2;               //昵称
+    optional int32 seat_id = 3;             //座位
+    optional int32 sex = 4;                 // 性别
+    optional int32 uin = 5;
+    optional string openid = 6;
+    optional int32 is_robot = 7;            // 是否机器人 1:是 0:不是
+    optional string portrait = 8;           // 头像url
+    optional int32 call_multiple = 9;       // 玩家选择加倍的情况, -1:还没做出选择；0:不加倍；1:加倍
+    optional int32 call_score = 10;         // 叫分分数，-1:还未选择叫分 0:不叫分 1:1分 2:2分 3:3分 4:4分
+    optional int32 auto_play = 11;          // 是否是托管，0：否，1：是	
+	optional int64 gold =12;                // 玩家当前金币
+	optional int32 show_multi = 13;         // 玩家的明牌倍数 1：表示没明牌 大于1其他明牌
+	optional int32 diamond_amount = 14;     // 玩家钻石数量
+    optional int32 player_score = 15;       // 玩家在牌桌内的分值情况。（好友房）
+    optional int32 grab_action = 16;        // 抢地主类型
+    optional int32 match_level = 17;        // DDZ赛事段位 从青铜一阶到最强王者段位===>10~140 以10的跨度
+    optional int32 dan_grading = 18;        // DDZ具体赛事段位范围 10:青铜 20:白银 30:黄金 40:钻石 50:宗师 60:最强王者
+    optional int32 star_number = 19;        // 星星个数   -1: 表示没有星星
+    optional string icon_frame = 20;        // 头像框
+    optional MatchAllLvInfo all_lv_info = 21;   // 所有段位信息
+}
+
+message CardInfo {
+    optional int32 uin = 1;         // 用户id,这首牌属于谁的
+    repeated int32 cards = 2;       // 牌组数值 (不需要时不传此字段)
+    optional int32 cards_num = 3;   // 用户剩余手牌数量
+}
+
+message CardCounter {                    // 记牌器
+    optional int32 counts = 1;           // 可用次数
+    repeated int32 remain_list = 2;      // 15张牌的剩余张数 (好友房更改为有这个字段显示记牌信息 没有不显示记牌信息)
+    optional int32 can_use_counts = 3;   // 实际可用次数，counts>0且can_use_counts=0提示下局才可以使用哦
+}
+
+message SuperMultiCard {                 // 超级加倍卡
+    optional int32 counts = 1;           // 可用次数
+}
+
+
+// app 新增结算配置
+message AppAddResultInfo
+{
+	// 斗地主奖励项
+	message TmpResultReward {
+		optional int32 uin = 1;					// uin
+		optional int32 type = 2;				// 奖励类型
+		optional int64 value = 3;					// 奖励数
+	}
+	repeated TmpResultReward cur_lv_exit_matchreward = 1;		// 自身当前退赛可得福卡数
+
+}
+
+// 连胜任务完成
+message WinStreakPickEvt {
+    optional int32 ws_streak = 1;                     // 连胜 领取奖励时候回传
+    optional string ws_name = 2;                      // 连胜任务名称 完成任务有该字段
+    optional int32 need_diamond = 3;                  // 需要钻石
+    optional int32 user_diamond = 4;                  // 用户拥有钻石
+}
+
+message WinStreakTaskEvt {
+    optional WinStreakDeskMsg ws_desk_info = 1;       // 连胜任务 牌桌内显示信息
+    optional WinStreakPickEvt ws_pick_info = 2;       // 只有 完成连胜任务时有该字段
+    optional int32 can_done_times = 3;                // 剩余完成次数
+}
+
+message MatchAllLvInfo {
+    optional int32 match_lv = 1;                 // 当前段位
+    optional int32 sub_lv = 2;                   // 当前子段位
+    optional int32 star = 3;                     // 当前字段位星数
+    optional int64 sub_lv_star_num = 4;          // 当前字段位星槽数
+}
+
+message MatchRewardBox {
+    optional int32 reward_box = 1;               // 宝箱奖券数
+    optional int32 box_fee_diamond = 2;          // 开启宝箱需要的钻石数
+    optional int32 match_box_lv = 3;             // 宝箱等级 开启时回传
+}
+
+message MatchSettleEvt {
+    optional int32 uin = 1;                          // uin
+    optional string nick = 2;                        // 昵称
+
+    optional MatchAllLvInfo all_lv_info_now = 3;     // 段位的所有信息
+    optional MatchAllLvInfo all_lv_info_bef = 4;     // 段位的所有信息
+    
+    optional int32 reward_base = 5;                  // 基础奖励
+    optional int32 reward_lv_up = 6;                 // 段位加成
+    optional int32 reward_landlord = 7;              // 地主加成
+    
+    optional MatchRewardBox reward_box = 8;          // 宝箱奖券数(有宝箱才有该字段)
+
+    optional int32 star_protect_remain_count = 9;    // 保星剩余次数(触发保星才有该字段)
+    optional int32 star_protect_consume_dia = 10;    // 保星消耗钻石(触发保星才有该字段)
+    optional int32 is_season_settle = 11;            // 是否赛季结算 0不结算 1进行结算
+    optional int32 star_protect_again = 12;          // 保星是否二次弹窗 0否 1是
+}
+
+// 6507 结束通知
+message DDZResultEvt {
+    optional int32 is_winner = 1;           //0:失败, 1:胜利, 谁收到就是谁的  630
+    optional int32 win_score = 2;            //得分,谁收到就是谁的
+    optional int32 win_gold = 3;              // 玩家输赢---金币
+    optional int32 call_score = 4;          //叫分,谁收到就是谁的
+    optional int32 cost_time = 5;           //耗时:秒,谁收到就是谁的
+    optional int32 spring_type = 6;         //春天的类型，0：不是春天；1：春天；2：反春
+    optional int32 multiple = 7;            //玩家加倍倍数
+    optional int32 bomb_count = 8;          //炸弹次数
+    optional int32 landlord_uin = 9;        //地主的uin  630
+    repeated PlayerInfo player_info = 10;    //玩家信息列表   630
+    repeated CardInfo card_list = 11;        //玩家亮牌信息,每个玩家剩余的手牌  630
+    repeated PlayerResult player_result = 12; // 每一个玩家的输赢结果  630
+    optional int32 is_abolish = 13;           // 是否是流局， 0: 不是  1: 是
+    optional int32 over_flag = 14;            // 整场结束标记位 0否 1是  630
+    optional CardCounter card_counter = 15;   // 记牌器信息  630
+    repeated RoundDetail round_details = 16;    // 对局详情（赛事的晋级结算中先推送）
+    optional int32 old_level = 17;           // 参赛前的段位   10~140对应青铜1到最强王者 以10为跨度
+    optional int32 old_dan_grading = 18;       // DDZ具体赛事段位范围 10:青铜 20:白银 30:黄金 40:钻石 50:宗师 60:最强王者
+    optional int32 old_star_number = 19;      // 星星个数   -1: 表示没有星星
+    optional int32 cur_level = 20;            // 参赛后的段位(真实段位)
+    optional int32 cur_dan_grading = 21;      // DDZ具体赛事段位范围 10:青铜 20:白银 30:黄金 40:钻石 50:宗师 60:最强王者
+    optional int32 cur_star_number = 22;      // 星星个数   -1: 表示没有星星
+    optional int32 next_award_type = 23;      // 下一段位的奖励 0:无 1.金币 2.奖券 3.记牌器 4.等级卡
+    optional int32 next_award_count = 24;       // 下一段位的奖励数量
+    optional int32 go_flaunt = 25;              // DDZ赛事是否去炫耀 0:不去炫耀 1:去炫耀
+    optional int32 stay_time = 26;              // DDZ赛事默认停留结算页面时间
+    optional ShareInfo share_info = 27;         // 分享相关信息  不能分享没有该字段  11 连胜保级
+    optional MultipleInfo multiple_info = 28;   // 加倍相关信息，结算时展示具体倍数
+    optional int32 last_diamond = 29;           // 身上剩余的钻石  630
+    optional int32 open_gold_box_diamond = 30; // 打开金币宝箱需要的钻石
+    optional string gold_box_range = 31;        // 金币宝箱奖励区间
+    optional ComShareInfo promotion_guide_share = 32;   // 晋级引导炫耀好友群(只有赛事场会有)
+    optional LuckyTaskInfo lucky_task_info = 33;  // 幸运任务信息 没有完成任务没有该字段
+    optional WinStreakTaskEvt  ws_task_evt = 34;  // 连胜任务
+	optional int32 round_index = 35;               // 好友房第几局
+    repeated MatchSettleEvt match_settle = 37;     // 630赛事结算信息
+
+	// app 新增 start
+    optional AppAddResultInfo app_add_result_info = 100;		// app 新增内容
+    optional App620NewUserPlayTask app_new_user_play_task = 101;    // app 620 新手任务礼包信息
+	// app 新增 end
+}
+
+// 连胜保级
+message WinStreakProtectEvt {
+    optional int32 need_diamond = 1;                  // 需要钻石
+    optional int32 user_diamond = 2;                  // 用户拥有钻石
+}
+
+message ShareInfo{
+    optional int32 share_type = 1;            // 分享类型 0不能分享 1春天 2反春 3分享盈利翻倍 4刷新连胜记录 5刷新倍数记录 6打出高连胜 7打出高倍数 8分享免输 9系统保护 10幸运奖金 11 连胜保级 50分享保级
+    optional string client_title = 2;         // 客户端标题    # ''空字符没有使用通用
+    optional int32 times = 3;                 // 倒计时长      
+    optional string share_str = 4;            // 分享一句文案  # ''空字符没有使用通用 --赢了
+    optional string share_icon = 5;           // 分享图        # ''空字符没有使用通用 --赢了
+    optional int64 share_id = 6;              // 分享图文id    # 0空字符没有使用通用  --赢了
+    optional string hand_id = 7;              // hand_id
+    optional string icon_txt = 8;             // 客户端显示图片内的文案
+    optional string match_txt = 9;            // 赛事文案
+    optional ComShareInfo protect = 10;       // 保级 分享图文信息
+    optional ComShareInfo loss = 11;          // 输了 分享图文信息
+    optional string x_dimension = 12;         // x维度的值，没有x维度则为空字符串
+    optional ComShareInfo gold_box = 13;      // 金币宝箱
+    optional WinStreakProtectEvt wx_protect = 14;      // 只有 触发连胜保级有该字段 
+	optional int32 win_loss_abs_max = 15;     // 
+}
+
+// 结算信息
+message PlayerResult{
+    optional int32 uin = 1;            // 用户id
+    optional string nick = 2;           // 玩家昵称
+    optional int32 win_gold = 3;        // 本副牌赢得金币
+    optional int32 score = 4;           // 本副牌赢得积分
+    optional int32 multi = 5;           // 用于好友房结算，玩家的加倍倍数
+    optional int32 base_socre = 6;      // 底分
+    optional int32 calc_type = 7;       // 结算类型 0正常结算 1破产 2封顶
+    optional string top_reason = 8;     // 封顶原因
+}
+
+// 加倍信息 (默认无倍数的都为1)
+message MultipleInfo{
+    optional int32 init_multi = 1;          // 初始倍数 
+    optional int32 show_multi = 2;          // 明牌倍数的值  
+    optional int32 spring_multi = 3;        // 春天倍数  
+    optional int32 dipai_multi = 4;         // 底牌倍数,尾牌特殊牌型加倍  
+    optional int32 bomb_multi = 5;          // 炸弹倍数  
+    optional int32 qdz_multi = 6;           // 抢地主倍数  
+    optional int32 common_multi = 7;        // 公共倍数  
+    optional int32 landlord_multi = 8;      // 地主加倍倍数  
+    optional int32 farmers_multi = 9;       // 农民加倍倍数  
+    optional int32 total_multi = 10;        // 总倍数  
+}
+
+message LuckyTaskInfo{
+    optional int32 tid = 1;                // 任务id 0为没有幸运任务
+    optional string desc = 2;              // 任务描述
+    repeated TaskReward awards = 3;          // 奖励信息
+    optional int32 progress = 4;           // 进度 已经完成的次数
+    optional int32 condition = 5;          // 条件 需要完成的次数
+    optional int32 status = 6;             // 状态 0未完成 1已完成 2以领取
+    optional string hand_id = 7;           // 牌桌hand_id
+    optional ComShareInfo share_info = 8;  // 幸运任务分享信息
+    optional int32 pick_type = 9;          // 领取方式 1流量主 2分享
+}
+
+//6509 游戏开始通知
+message DDZStartGameEvt {
+    optional int32 next_uin = 1;                // 第一个开始抢地主玩家
+    optional int32 status = 2;                  // 游戏状态
+    repeated CardInfo card_list = 3;            // 用户手牌,谁收到就是谁的
+    optional int32 base_score = 4;              // 默认的底分
+    optional int32 multiple = 5;                // 默认倍数---接收者的倍数
+    optional int32 op_left_time = 6;            // 玩家操作剩余过期时间
+	optional int32 max_grab_action = 7;         // 当前叫到的最大请地主类型值
+    repeated PlayerInfo player_info = 8;        // 牌桌内玩家信息
+    optional int32 round_index = 9;             // 当前局数（与进桌一致）
+    optional bool is_final_round = 10;          // 是不是決勝局，True表示是，False表示不是，用在比賽場
+    optional LuckyTaskInfo lucky_task_info = 11;  // 幸运任务信息 没有任务没有该字段
+    optional int32 has_show_start = 12;           // 是否有明牌开始
+}
+
+// cmd: 6516, 后台切回前台查询牌桌信息
+message DDZQueryDeskReq {
+}
+// response body里面返回 DDZEnterDeskEvt
+
+
+//cmd: 6521 客户端玩家定时器超时请求
+message DDZOPTimeoutReq {
+    
+}
+
+message DDZOPTimeoutRsp {
+    
+} 
+
+//cmd 6522 斗地主互动表情。
+message InteractiveExpressionReq{
+    optional int32 to_uin = 1;              // 发给谁
+    optional int32 expression_id = 2;       // 表情ID
+}
+message InteractiveExpressionRsp{
+}
+
+// cmd: 311, 广播给谁发了互动表情
+message InteractiveExpressionNtf{
+    optional int32 from_uin = 1;            // 谁发的
+    optional int32 to_uin = 2;              // 发给谁
+    optional int32 expression_id = 3;       // 表情ID
+    optional string nick = 4;       // 发送者昵称
+    optional string from_openid = 5;        // 发送者openid
+}
+
+// 破产保护弹窗 cmd 6527
+message DDZProtectNtf{
+  optional int32 uin = 1;                   // 弹窗用户
+  optional int32 count = 2;                 // 发放金币的次数，一天3次
+  optional int32 give_gold = 3;             // 发放的数量  
+  optional int32 gold = 4;                  // 玩家当前的金币
+  optional string content = 5;              // 文案
+  optional ComShareInfo share_info = 6;     // 分享信息
+  optional int32 room_id = 7;               // 有room_id则传
+  optional int32 share_give_gold = 8;       // 看视频额外发放的数量 
+}
+
+//cmd: 6557 破产保护领取金币
+message DDZBankruptcyShareReq{
+    optional int32 result = 1;              // 结果
+    optional int32 cur_time = 2;            // 当前第几次
+    optional int32 is_share = 3;            // 是否是分享领取 0不是 1是
+    optional int32 room_id = 4;             // 有room_id则传,没有为-1
+}
+
+message DDZBankruptcyShareRsp {
+    optional int32 coin_amount = 1;			//分享奖励额外金币
+} 
+
+// 通知用户金币/钻石变化, cmd: 金币190, 钻石193, 奖券7551
+message UserChangeNtf {
+    optional int32 uin = 1;
+    optional int64 delta_amount = 2;  // 变化值
+    optional int64 remain_amount = 3; // 剩余值
+}
+
+// cmd: 221, 商城钻石兑换商品
+message StoreBuyItemUsingDiamondReq{
+    optional string item_id = 1;            // 商品item id
+    optional int32 refer = 2;               // 场景来源，1: 商城
+}
+message StoreBuyItemUsingDiamondRsp{
+}
+
+// cmd: 149, 通知购买商城物品成功了
+message EvtBuySucc {
+    optional string item_id = 1;            // 计费点
+    optional int32 price = 2;               // 价格
+    optional int64 recharge_gold = 3;       // 充值加的金币
+}
+
+//玩家准备cmd:6528
+message DDZUserReadyReq {
+    optional int32 start_type = 1;          //  1.正常开始 2.明牌开始
+    optional int32 show_multi = 2;          // 明牌倍数的值 X倍数。默认值1.
+}
+
+//
+message DDZUserReadyRsp {
+    
+}
+
+//玩家准备通知ntf： cmd 6529
+message DDZUserReadyNtf{
+    optional int32 uin = 1;     //做好准备的玩家
+}
+
+
+//玩家名牌请求cmd:6530。用于发牌过程中的明牌
+message DDZShowCardReq {
+    optional int32 show_multi =1;       //明牌倍数。
+}
+
+
+message DDZShowCardRsp{
+    
+}
+
+// 明牌通知cmd 6531.
+message DDZShowCardNtf {
+    message ShowCard {
+        optional int32 uin = 1;             //明牌人员
+        optional CardInfo card_info = 2;    //牌型
+        optional int32 show_multi =3;             // 明牌倍数 X倍数
+    }
+
+    repeated ShowCard show_cards = 1;       //明牌信息
+}
+
+
+//查询牌桌倍数 cmd:6532
+message DDZDeskMultiReq {
+    
+}
+
+message DDZDeskMultiRsp {
+    
+}
+
+//牌桌倍数变化通知 cmd 6533
+message DDZDeskMultiNtf {
+    optional int64 multiple = 1;            //玩家倍数（总倍数）--与进桌一致
+    optional int32 init_multi = 2;          //初始倍数
+    optional int32 show_multi = 3;          //明牌倍数
+    optional int32 qdz_multi = 4;           //抢地主倍数
+    optional int32 dipai_multi = 5;         //底牌倍数
+    optional int32 bomb_multi = 6;          //炸弹倍数
+    optional int32 spring_multi = 7;        // 春天倍数
+    optional int64 common_multi = 8;        //公共倍数
+    optional int32 landloard_increase = 9;     // 地主加倍倍数
+    optional int32 farmer_increase = 10;        // 农民加倍
+}
+
+// 玩家大厅请求进去场次 cmd 6534
+message RoomCheckReq {
+}
+
+// 进桌前检测是否进去了其他场次
+message RoomCheckRsp {	
+	optional int32 old_room = 1;    // 玩家已经所在的room_id(与登录响应中字段一致), 如果没有为 0
+	optional int32 desk_id = 2;     // 玩家已经所在的桌子desk_id(与登录响应中字段一致)， 如果没有为0
+    optional int32 in_game = 3;     // 玩家在desk_id中的时候是否在玩牌 0 否， 1是
+    optional int32 desk_mode = 4;   // 当前所在桌子的类型 1.好友
+}
+
+
+//玩家在牌桌内站起 cmd:6535
+message DDZUserStandReq {
+    
+}
+
+message DDZUserStandRsp {
+    
+}
+
+// 站起cmd： 6536
+message DDZUserStandNtf {
+    optional int32 op_uin = 1;                  //站起的玩家
+    optional int32 reason = 2;                 //站起的原因
+    optional string desc = 3;                   //描述
+    repeated PlayerInfo player_info = 4;        //牌桌人员列表
+}
+
+
+//玩家点击座位桌下 cmd: 6537
+message DDZUserSitDownReq {
+    optional int32 seat_id = 1;                 //指定的座位号   
+}
+
+//玩家坐下响应
+message DDZUserSitDownRsp {
+
+}
+
+//玩家坐下广播 cmd： 6538
+message DDZUserSitDownNtf {
+    optional int32 desk_id = 1;                 //坐下的桌子
+    optional int32 op_uin = 2;                  //坐下的玩家
+    repeated PlayerInfo player_info = 3;        //牌桌人员列表
+}
+
+//牌桌当前操作者通知---暂用于发牌阶段结束通知抢地主
+// cmd 6539
+message DDZOpUserNtf {
+	optional int32 status = 1;					//牌桌状态
+	optional int32 next_uin = 2;				// 可操作人员
+	optional int32 op_left_time = 3;			//操作剩余时间
+    repeated int32 next_uin2 = 4;               // 当地主确认后，next_uin2是可以选择加倍或者不加倍的3个人的列表（有地主情况下生效）
+    
+}
+
+
+// 好友房间旁观玩家新建桌子---桌子配置信息与原房间一致
+// cmd 6540
+message DDZViewerCreateDeskReq{
+}
+
+//响应 response body里面返回 DDZEnterDeskEvt
+
+
+// 玩家点击换桌 cmd 6541
+message DDZUserChangeDeskReq {
+	optional int32 room_id = 1;         //  客户端如果有传表示进指定场次，没传进当前场次
+    optional int32 dst_desk_id = 2;     //  更换到指定场次的指定桌--服务器内部使用
+    optional int32 ret_cmd = 3;         //  响应命令字 -- 服务器内部使用
+}
+
+
+//换桌响应 response body里面返回 DDZEnterDeskEvt
+//换桌通知: 其他人收到换桌人进桌的广播
+
+
+
+
+// 战绩相关。
+message RoundSettle{
+    message Inner{
+        optional int32 uin = 1;
+        optional string portrait = 2;       //头像
+        optional int32 score = 3;
+        optional int32 sex = 4;
+    }
+    optional int32 uin = 1;                 // 玩家id
+    optional int32 battle_type = 3;         //1.经典场 2.癞子玩法
+    optional int32 end_time = 5;            //结束时间
+    repeated Inner inner = 6;               // 参与人员uin, 头像
+    optional string round_id = 7;           // 牌局id
+    optional int32 room_id = 8;           // 房间id  可用于识别玩法
+}
+//战绩 cmd 6542： 返回最近10场对局（好友局）
+message DDZRoundSettleReq{
+    
+}
+
+message DDZRoundSettleRsp {
+    repeated RoundSettle round_settle = 1;      //战绩列表
+}
+
+
+//对局排行信息 cmd:6543
+message DDZRoundRankReq {
+    optional string round_id = 1;          //本局id
+}
+
+// 排行榜信息
+message RankInfo {
+    optional int32 rank = 1;
+    optional int32 uin = 2;
+    optional string nick = 3;
+    optional int32 gender = 4;              // 性别
+    optional string portrait = 5;           // 头像url
+    optional int64 update_times = 6;        // 最后更新的时间
+    optional int32 endgame_level = 7;       // 残局到了几关
+}
+
+
+message DDZRoundRankRsp {
+    message RandInfo {
+        optional int32 uin=1;               // 玩家uin
+        optional string portrait=2;         //玩家头像
+        optional string nick=3;             //玩家昵称
+        optional int32 win_times = 4;       //获胜次数（本局中）
+        optional int32 lose_times = 5;      //失败次数（本局中）
+        optional int32 score = 6;           //得分 --（本局总得分）
+        optional int32 sex = 7;
+    }
+
+    repeated RandInfo rank_info =1;         //总分排行
+
+    message RoundDetail{
+        message UserDetail{
+            optional int32 uin = 1;
+            optional string portrait=2;         //玩家头像
+            optional string nick=3;             //玩家昵称
+            optional int32 role_type = 4;       //角色类型
+            optional int32 score = 5;           //本副牌得分
+            optional int32 sex = 6;
+            repeated int32 card_list = 7;       //牌型
+            repeated int32 hole_cards = 8;      //地主牌。是地主就填充，不是则无
+        }
+        repeated UserDetail user_detail= 1;
+    }
+
+    repeated RoundDetail round_detail = 2;     //对局详情
+
+    message RoomDetail{
+        optional int32 battle_type = 1;
+        optional int64 cap_score = 2;
+        optional int32 max_round = 3;
+        optional int32 allow_view = 4;
+        optional int32 end_time = 5;
+	optional int32 room_id = 6;           // 房间id  可用于识别玩法
+    }
+
+    optional RoomDetail room_detail = 3;        //玩法信息
+
+}
+
+// 反馈意见 cmd:6544
+message DDZFeedBackReq{
+	optional string msg =1;                    // 反馈内容
+}
+
+message DDZFeedBackRsp{
+	optional int32 msg_id = 1;                 // 反馈成功返回id
+}
+
+
+// 获取邮件内容 cmd = 6545
+message DDZGetEmailReq{
+}
+
+message DDZGetEmailRsp{
+	message EmailDetail{
+		optional string email = 1;          // 邮件内容
+		optional int32  time = 2;		    // 时间戳
+	}
+	repeated EmailDetail email_detail = 1;  	
+}
+
+// 新手福利配置
+message DDZFreshGiftConfig{
+	optional int32 days = 1;           // 天数
+    optional int32 gold_num = 2;       // 天数对应的金币数量
+    optional int32 diamond_num = 3;    // 天数对应的钻石数量
+	optional int32 super_multi_card = 4;    // 天数对应的超级加倍卡数量
+	optional int32 oneday_remcard = 5;    // 天数对应的一天记牌器数量
+}
+	
+// 点击查询新手福利请求 cmd 6546
+message DDZFreshManGiftReq{
+}
+
+message DDZFreshManGiftRsp{
+	optional int32 flag = 1;                    		// 是否可领 0 表示不可领 1表示可领 小红点也是通过这个来渲染
+	optional int32 gift_type = 2;               		// 领取的福利类型 1----7 对应不同的金币数量
+	repeated DDZFreshGiftConfig gift_config = 3;        // 礼物配置
+    optional ComShareInfo share_info = 4;               // 分享图文 如果为空使用登入给的默认图文
+}
+
+// 玩家领取新手奖励 cmd = 6547
+message DDZReceiveGiftReq{
+    optional int32 is_share = 1;                        // 是否是分享领取
+}
+
+// 领取后返回，需要单独发送金币变化通知
+message DDZReceiveGiftRsp{
+	optional int32 gold_num = 1;						// 新手福利领取的金币
+    optional int32 diamond_num = 2;                     // 新手福利领取的钻石
+}
+
+
+// 检测能进的场次----金币限制 cmd = 6548
+message DDZCheckGoldLimitReq{
+	optional int32 room_id = 1;         // 玩家请求要进的场次id 好友房不检测，不能传1000
+}
+
+message DDZCheckGoldLimitRsp{
+	optional int32 room_id = 1; 				// 返回一个用户能进的场次中最高等级的场次
+	optional int32 flag = 2;                    // 标记位，0 表示当前无限制 1 表示玩家金币过少限制 2 玩家金币过多限制
+}
+
+
+//房主踢人：cmd--6549
+message DDZKickOutReq {
+    optional int32 kick_uin = 1;               // 被踢人员
+}
+
+message DDZKickOutRsp {
+    optional int32 result = 1;              // 0： 踢人成功  1.踢人失败
+    optional string desc = 2;               // 提示语
+}
+
+// 踢人广播使用玩家退桌广播6513。reason和提示语区分
+
+
+// 微信公众号关注有礼：客户端请求 cmd = 6550
+message DDZFocusGiftReq{
+}
+
+// 微信公众号：关注有礼 服务端响应
+message DDZFocusGiftRsp{
+   optional string notice_detail = 1;        //关注有礼的信息
+   optional string notice_title = 2;        //关注有礼的信息
+   optional string wx_public = 3;            //微信公众号
+   optional string focus_img_banner = 4;      //第一张照片
+   optional string focus_img_code = 5;    //第二张照片
+}
+
+// 用户未读消息的数量(目前只在登录时候推送)
+// cmd = 6551
+message UserUnreadNumNtf{
+	optional int32 unread_msg_num = 1; 		// 用户未读消息的数量
+}
+
+
+// cmd: 196
+message CardCounterDetailReq {
+}
+message CardCounterDetailRsp {                     // 大厅记牌器详情
+    optional int32 remain_counts = 1;              // 可使用次数
+    optional int32 share_add_counts = 2;           // 分享+几次
+    optional int32 invite_add_counts = 3;          // 邀请+几次
+    optional int32 share_chances = 4;              // 分享可领取次数
+    optional int32 invite_chances = 5;             // 邀请可领取次数
+    optional int32 valid_days = 6;                 // 有效天数
+    optional int32 share_max_chances = 7;	       // 分享最大次数
+    optional int32 invite_max_chances = 8;	       // 邀请最大次数
+    optional int32 already_shared_chances = 9;	   // 已分享次数
+    optional int32 already_invited_chances = 10;   // 已邀请次数
+    optional ComShareInfo share_info = 11;         // 分享信息
+}
+
+// cmd: 197
+message IncrCardCounterChanceReq {             // 分享成功后增加领取次数
+    optional int32 cur_time = 1;               // 如果是在大厅分享需要传这个参数防止重复领取
+}
+message IncrCardCounterChanceRsp {
+    optional int32 share_chances = 2;          // 分享可领取次数
+}
+
+// cmd: 198
+message PickCardCounterInMainReq {             // 主界面领取记牌器
+    optional int32 via = 1;                    // 途径，分享: 1, 邀请: 2
+}
+message PickCardCounterInMainRsp {
+    optional int32 remain_counts = 1;          // 可使用次数
+    optional int32 share_chances = 2;          // 分享可领取次数
+    optional int32 invite_chances = 3;         // 邀请可领取次数
+}
+
+// cmd: 199
+message PickCardCounterInDeskReq {             // 牌桌内分享领取记牌器
+}
+message PickCardCounterInDeskRsp {
+    optional CardCounter card_counter = 1;     // 用来更新牌桌内记牌器
+    optional bool need_pop_card_counter = 2;   // 是不是需要显示记牌器分享
+}
+
+// cmd: 201
+message CardCounterChangeNtf {
+    optional int32 card_counter_num = 1;           // 记牌器数目
+}
+
+// cmd:200同步人员的财产信息。 比如同步人员金币信息到客户端，后续可拓展其他
+message SyncFortuneInfoNtf{                   
+    message FortuneInfo{
+        optional int32 uin = 1;
+        optional int64 gold = 2;    //当前金币值
+
+    }
+    repeated FortuneInfo fortune_infos = 1;
+}
+
+
+// cmd 202 背包
+message KnapsackInfoReq{
+    
+}
+
+// cmd: 204 春天分享获得记牌器
+message PickSpringCardCounterReq {}
+message PickSpringCardCounterRsp {
+    message ShareSuccInfo {
+        optional int32 share_type = 1;                       // 分享成功类型
+        optional int64 golds = 2;                            // 获得金币
+        optional int64 card_counter = 3;                     // 记牌器数量
+    }
+    optional ShareSuccInfo share_succ_info = 1;              // 分享成功后的信息
+}
+
+message KnapsackInfoRsp{
+    message PropsInfo{
+        optional int32 props_type = 1;      // 道具类型 0 无效 1. 金币 2.奖券 3.记牌器 4.等级卡 5.超级加倍卡 6.赛事宝箱。 背包中只包含3.4.5类型
+        optional int64 remain_counts = 2;   // 本类型的剩余数量
+        optional string desc = 3;           // 使用说明
+        optional int32 level_card = 4;      // 等级卡类型时必须填充.标识所在等级
+        optional string get_way_desc = 5;   // 获得途径
+        optional MatchRewardBox reward_box = 6;          // 宝箱
+    }
+    repeated PropsInfo props_infos = 1;
+
+}
+
+
+//cmd 203奖券。点击详情。下发banner图样
+message AwardInfoDetailReq{
+    
+}
+
+message AwardInfoDetailRsp{
+    optional string banner_url = 1;         //bannerurl
+}
+    
+
+
+//---------------------- DDZ 万元赛 begin ---------------------------------
+
+//进桌
+//cmd: 6500
+//req: DDZEnterDeskReq
+//rsp: DDZEnterDeskRsp
+//ntf: [6512], DDZEnterDeskEvt
+
+//退桌
+//cmd: 7502
+//req: DDZExitDeskReq
+//rsp: DDZExitDeskRsp
+//ntf: [6513], DDZExitDeskEvt
+
+//叫分
+//cmd: 7504
+//req: DDZUserCallReq
+//rsp: DDZUserCallRsp
+//ntf: [6508], DDZUserCallEvt
+
+//托管
+//cmd: 7505
+//req: DDZAutoPlayReq
+//rsp: DDZAutoPlayRsp
+//ntf: [6511], DDZAutoPlayEvt
+
+//出牌
+//cmd: 7506
+//req: DDZDiscardReq
+//rsp: DDZDiscardRsp
+//ntf: [6510], DDZDiscardEvt
+
+//加倍
+//cmd: 7514
+//req: DDZUserMutiReq
+//rsp: DDZUserMutiRsp
+//ntf: [6515], DDZUserMutiEvt
+
+//游戏开始通知
+//ntf: [6509], DDZStartGameEvt
+
+//游戏结束通知
+//ntf: [6507], DDZResultEvt
+
+//从后台切换回前台查询牌桌信息
+//cmd: 7516
+//req: DDZQueryDeskReq
+
+//客户端玩家定时器超时请求
+//cmd: 7521
+//req: DDZOPTimeoutReq
+//rsp: DDZOPTimeoutRsp
+
+//牌桌倍数请求
+//cmd: 7532
+//req: DDZDeskMultiReq
+//rsp: DDZDeskMultiRsp
+//ntf: [6533], DDZDeskMultiNtf
+
+
+//通知牌桌的当前操作者
+//ntf: [6539], DDZOpUserNtf
+
+//玩家点击继续挑战
+//cmd 7541
+//req: DDZUserChangeDeskReq
+
+
+message RoundDetail {
+    optional int32 uin = 1;
+    optional string nick = 2;
+    message DetaiInfo {
+        optional int32 round_index = 1;       //副牌索引。总计数据index=-1
+        optional int64 score = 2;       //副牌得分， 或者总得分 
+        optional int32 cost_time = 3;   // 副牌耗时 ，或者总耗时
+        optional bool is_final_round = 4;       // 是否決勝局，True表示是，False表示不是，用在比賽場
+    }
+    repeated DetaiInfo detail_infos = 3;    // 玩家的每副牌的数据及总数据
+    optional int32 award_type = 4;          // 当前奖励类型 0.无 1.金币 2.奖券 3.记牌器 4.等级卡
+    optional int64 award_count = 5;         // 奖励数量
+	
+	// app 新增, 使用 100 序号,尽量不影响 wx 小游戏
+	optional int32 match_level_change_type = 100;	// 等级变化类型 0:升,级变;1升,级不变;2降, 级变;3降,级不变
+}
+
+// cmd7549玩家查询赛事对局详情
+message DDZRoundDetailReq {
+    
+}
+ 
+message DDZRoundDetailRsp {
+    repeated RoundDetail round_details = 1;     //对局详情数据
+}
+
+// cmd: 7550 630版本cmd: 30050
+message DDZMatchHomepageInfoReq {
+}
+message DDZMatchHomepageInfoRsp {
+    optional int32 match_level = 1;               // 用户段位  10:青铜 20:白银 30:黄金 40:铂金 50:钻石 60:宗师 70:最强王者
+    optional int32 dan_grading = 2;               // DDZ具体赛事段位范围 10:青铜 20:白银 30:黄金 40:钻石 50:宗师 60:最强王者
+    optional int32 star_number = 3;               // 用户当前段位星星个数   -1: 表示没有星星
+    optional int32 current_level_award = 4;       // 当前退赛可得奖券
+    optional int32 next_level_award = 5;          // 下级可得奖券
+    optional int32 at_play_num = 6;               // 在玩人数
+    optional int32 guide_status = 7;              // 新手引导状态 0未参与赛事引导 1有参与赛事引导
+    optional int64 star_max_number = 8;           // 当前段位星星个数上限
+    repeated DDZSeasonAward season_award = 9;     // 赛季奖励信息
+    optional int32 season_sn = 10;                // 第几赛季
+    optional string season_date_range = 11;       // 赛季日期范围
+    repeated DDZSessionInfo session_info = 12;    // 场次信息
+    optional int32 sub_level = 13;                // 小段位  
+    optional DDZSettlementInfo settle_info = 14;  // 赛季结算弹窗信息
+    optional string match_regulations_path = 15;  // 赛季规则图片路径
+    optional bool need_exchange_coupon = 16;      // 是否需要兑换用户的老段位和老等级卡  
+}
+
+message DDZSessionInfo {
+    optional int32 session_type = 1;              // 场次类型 1.赛季赛 2.王者赛
+    optional int32 session_switch = 2;            // 场次开关 0关闭 1打开 2敬请期待
+    optional int32 enter_fee_type = 3;            // 入场费类型 1.金币
+    optional int32 enter_fee = 4;                 // 入场费（-1表示不需要入场费）
+}
+
+message DDZSeasonAward {
+    optional int32 award_type = 1;                // 奖励类型 1.钻石 2.头像框
+    optional int32 award_num = 2;                 // 奖励数量
+    optional string icon_frame_path = 3;          // 赛季奖励头像框路径(只有头像框才会有这个字段)
+}
+
+message DDZSettlementInfo {
+    optional int32 season_sn = 1;                 // 第几赛季结算
+    repeated DDZSeasonAward season_award = 2;     // 赛季奖励信息
+    optional MatchAllLvInfo all_lv_info = 3;      // 段位的所有信息
+}
+
+// 奖券变化通知
+//ntf: [7551], UserChangeNtf
+
+message DDZAward {
+    optional int32 award_type = 1;              // 奖励类型 1.金币 2.奖券 3.记牌器 4.等级卡 5.红包(单位分)
+    optional int64 award_count = 2;             // 奖励数量
+    optional int32 level = 3;                   // 等级
+}
+
+// cmd: 7553  玩家退赛兑奖信息
+message DDZExitMatchInfoReq {
+}
+message DDZExitMatchInfoRsp {
+    repeated DDZAward awards = 1;               // 奖励信息
+}
+
+// cmd: 7554  玩家退赛兑奖
+message DDZExitMatchReq {
+    optional int32 redeem_type = 1;                 // 兑奖类型 1.金币 2.奖券 3.记牌器 4.等级卡
+}
+message DDZExitMatchRsp {
+}
+
+// 段位变化通知
+//ntf: [7555], UserChangeNtf
+
+// cmd: 7556 ddz赛事世界排行榜 630以上版本cmd: 30061
+message DDZMatchLeaderBoardInfoReq {
+}
+
+
+message LeaderBoardInfo{
+    optional int32 uin = 1;     //uin
+    optional int32 rank = 2;    //排名 -1的时候说明用户未参加过比赛服务器没有该用户的排行榜数据
+    optional int64 score = 3;   //分数
+    optional int32 level = 4;   //玩家最高段位 (该字段 老版本有， 新版本无)
+    optional int32 times = 5;   //场次
+    optional string rate = 6;    //胜率
+    optional string nick = 7;   //昵称
+    optional string icon = 8;   //头像
+	optional int32 is_new = 9;   // 1新库 0或者null为旧库 2.630新库
+    optional int64 coupon = 10;   // 赛季赢得奖券数  630
+    optional int32 season_sn = 11;   // 属于第几个赛季的数据
+    optional int32 sub_lv = 12;      // 子段位
+    optional int32 star = 13;        // 字段位星数
+}
+message DDZMatchLeaderBoardInfoRsp {
+    repeated LeaderBoardInfo leader_board_info = 1;        // 排行榜
+    optional ComShareInfo share_info = 2;                  // 排行榜分享信息
+}
+
+// cmd: 7557
+// 通知玩家排行榜的分数改变
+message DDZMatchUserBoardInfoNtf {
+     optional LeaderBoardInfo user_board_info = 1;
+}
+
+// 通知本副牌的输赢, cmd: 7558
+message UserWinOrLoseNtf {
+    optional int32 win_or_lose = 1;     // 输赢 0:输了 1:赢了 谁收到就是谁的
+    optional int32 is_abolish = 2;      // 是否是流局 0: 不是  1: 是
+}
+
+// 玩家请求是否展示最强王者自动退赛兑奖弹窗
+// cmd 7559
+message UserAutomaticAwardReq {
+}
+
+message UserAutomaticAwardRsp {
+    optional int32 is_show = 1;         // 是否需要展示 0: 不需要展示 1: 需要展示
+    optional int32 award_type = 2;      // 兑奖奖励类型 1.金币 2.奖券 3.记牌器 4.等级卡
+    optional int32 award_count = 3;     // 兑奖奖励数量
+}
+
+// 用户使用等级卡 cmd 7560
+message UseLevelCardReq {
+    optional int32 level_card = 1;                   // 所使用的等级卡
+}
+message UseLevelCardRsp {
+}
+
+//---------------------- DDZ 万元赛 end ---------------------------------
+
+
+// -----------兑换--------------
+// 奖券类型, 奖券数目  
+message ExchangeInfo{
+    optional int32 estate_type = 1;        // 兑换消耗方式 1.金币 2.奖券 3.记牌器 4.等级卡
+    optional int64 num = 2;                // 奖券数目
+}
+
+// 能兑换的商品信息
+message ExchangeGoodsInfo{
+    optional int32 goods_id = 1;           // 物品id
+    optional string name = 2;              // 物品名称
+    repeated ExchangeInfo info = 3;        // 物品需要的奖券数目
+    optional string icon = 4;              // 图像
+    optional string desc = 5;              // 商品描述
+    optional int32 need_addresses = 6;     // 0不需要填写任何信息 1 填写地址信息 2 填写电话号码
+    optional int32 discount = 7;           // 折扣
+}
+
+// 能兑换的商品分类
+message ExchangeClassifyInfo{
+    optional int32 classify_id = 1;        // 分类id
+    optional string name = 2;              // 分类名称
+    repeated ExchangeGoodsInfo goods = 3;  // 改分类下的物品
+    optional string icon = 4;              // 图像
+    optional int32 tag = 5;                // 标签  0.无 1.热门 2.折扣
+}
+
+// 获取兑换商品的信息  6552
+message ExchangeClassifyReq {
+}
+message ExchangeClassifyRsp{
+    repeated ExchangeClassifyInfo classify = 1;        // 兑换物品和分类
+    repeated ExchangeInfo user_estate = 2;             // 用户身上的奖券信息
+    optional UserAddressesInfo info = 3;               // 用户地址
+    optional int32 need_lead = 4;                      // 是否需要引导
+}
+
+// 兑换   6553
+message ExchangeGoodsReq {
+    optional int32 goods_id = 1;      // 商品id
+    optional int32 num = 2;           // 商品数目
+    optional string phone = 3;        // 电话  注不是兑换话费时不能填写
+	optional string address = 4;        // 地址 app 实物专用
+	optional string post_code = 5;        // 邮编  app 实物专用
+}
+message ExchangeGoodsRsp {
+    repeated ExchangeInfo user_estate = 1;             // 用户身上的奖券信息
+    optional string share_icon = 2;                    // 分享图片
+    optional string share_str = 3;                     // 分享文案
+    optional string client_str = 4;                    // 客户端显示文案
+    optional string exchange_suc_icon = 5;             // 兑换成功后客户端展示图片
+}
+
+message UserAddressesInfo {
+    optional string phone = 1;         // 电话
+    optional string recipients = 2;    // 收件人
+    optional string address = 3;       // 地址
+}
+
+//  修改地址   6554
+message UserChangeAddressesReq {
+    optional string phone = 1;         // 电话
+    optional string recipients = 2;    // 收件人
+    optional string address = 3;       // 地址
+}
+message UserChangeAddressesRsp {
+    optional UserAddressesInfo info = 1;               // 用户地址
+}
+
+// 兑换记录  6555
+message UserChangeRecordInfo {
+    optional string name = 1;       // 兑换物品的名称
+    optional int32 time = 2;        // 时间
+    optional int32 num = 3;         // 数目
+    optional string status = 4;     // 状态
+}
+
+message UserChangeRecordReq {
+    optional int32 m_time = 1;        // 第一次调用不传  调用下一页的时候传r_id回来
+}
+message UserChangeRecordRsp {
+    repeated UserChangeRecordInfo record = 1;  // 兑换信息
+    optional int32 m_time = 2;                   // 用于分页 在调用下一页的时候传回服务器
+}
+// -------------end-------------
+
+// 赛事广播 cmd = 6556
+message EvtBroadCast{
+   optional int32 level = 1;        //等级 100为玩家在赛事中晋级及获得的等级（黄金级别以上） 200.玩家兑换了物品（价值奖券100以上）300.后台自定义添加的文本  400.系统
+   optional string content = 2;      //内容
+   optional int32 timestamp = 3;    //时间戳
+}
+
+// 小红点信息变化通知
+message DDZRedDotChangeMsg {
+    optional int32 red_dot_type = 1;            // 小红点类型 1: 邮件小红点 2: 系统消息小红点 3: 邀请有礼 4：参赛有礼 7.兑换 8.活动钻石 邀请有礼 10.连胜任务 11.头像框 12.赛事宝箱
+    optional int32 is_show = 2;                 // 小红点变化 0: 不展示 1: 展示
+    optional int32 show_amount = 3;             // 小红点附带数字
+}
+
+// 通知小红点, cmd: 180
+message DDZLittleRedDotNtf {
+    repeated DDZRedDotChangeMsg red_dot_msg = 1;            // 小红点信息变化通知 
+}
+
+message DDZMail {
+    optional int32 id = 1;              // 邮件id
+    optional string msg = 2;            // 内容
+    optional int64 timestamp = 3;       // 邮件发送时间戳
+}
+
+message DDZSysMessage {
+    optional string msg = 1;            // 内容
+    optional int64 timestamp = 2;       // 时间戳
+}
+
+// 邮箱查看请求 cmd: 181
+message DDZMailBoxReq {
+}
+message DDZMailBoxRsp {
+    optional string mail_meaages = 1;           // 邮件提示信息
+    repeated DDZMail mails = 2;                 // 邮件
+    repeated DDZSysMessage sys_messages = 3;    // 系统消息
+}
+
+// 邮件领取请求 cmd: 182
+message DDZMailReceiveReq {
+    optional int32 id = 1;                      // 领取邮件id
+}
+message DDZMailReceiveRsp {
+    optional int32 id = 1;                      // 领取邮件id 当领取类型是全部领取时，返回客户端 -1
+}
+
+// 系统消息已查看请求 cmd: 183
+message DDZSysMessageReadReq {
+}
+message DDZSysMessageReadRsp {
+}
+
+// 邮箱信息通知, cmd: 184
+message DDZmailBoxNtf {
+    optional DDZMail mails = 1;                 // 邮件
+    optional DDZSysMessage sys_messages = 2;    // 系统消息
+}
+
+
+// 牌桌信息分享成功后 回掉服务器接口 cmd: 6558  (分享失败无需告诉服务器)
+message DDZGameShareReq {
+    optional int32 share_type = 1;                     // 分享类型 0不能分享 1春天 2反春 3分享盈利翻倍 4刷新连胜记录 5刷新倍数记录 6打出高连胜 7打出高倍数 8分享免输 11 连胜保级  50分享保级
+    optional string hand_id = 2;                       // hand_id (必填)
+    optional string encrypted_data = 3;                // 加密数据
+    optional string iv = 4;                            // 加密算法的初始向量
+    optional string sdk_version = 5;                   // 微信基础库版本  大于等于2.3.0则默认返回成功
+    optional int32 need_diamond = 6;                   // 消耗钻石代替分享的需要传这个值
+    optional int32 protect = 7;                        // 是否保级 1是 0否
+}
+
+message DDZGameShareRsp {
+    optional string share_suc_str = 1;                 // 成功分享后文案
+    optional int32 cur_level = 2;                      // 参赛后的段位(真实段位)
+    optional int32 cur_dan_grading = 3;                // DDZ具体赛事段位范围 10:青铜 20:白银 30:黄金 40:钻石 50:宗师 60:最强王者
+    optional int32 cur_star_number = 4;                // 星星个数   -1: 表示没有星星
+    optional int32 next_award_type = 5;                // 下一段位的奖励 0:无 1.金币 2.奖券 3.记牌器 4.等级卡
+    optional int32 next_award_count = 6;               // 下一段位的奖励数量
+    message ShareSuccInfo {
+        optional int32 share_type = 1;                       // 分享成功类型
+        optional int64 golds = 2;                            // 获得金币
+        optional int64 card_counter = 3;                     // 记牌器数量
+    }
+    optional ShareSuccInfo share_succ_info = 7;              // 分享成功后的信息
+    optional WinStreakDeskMsg ws_desk_info = 8;              // 连胜任务 牌桌内显示信息
+}
+
+
+// 领取记牌器窗口是否需要弹出 cmd: 6559
+message DDZCardCounterNeedPopReq {
+}
+message DDZCardCounterNeedPopRsp {
+    optional int32 need_pop = 1;                     // 0 不需要 1 需要
+}
+
+message InviteHelper{
+    optional int32 uin = 1;                     // 助力者uin
+    optional string icon = 2;                   // 助力者头像
+    optional string nick = 3;                   // 助力者昵称
+}
+
+message DiamondShareHelper{
+    optional int32 uin = 1;                     // 点击分享链接进来的用户的uin
+    optional string icon = 2;                   // 点击分享链接进来的用户的头像
+    optional string nick = 3;                   // 点击分享链接进来的用户的昵称
+    optional int32 reward_amount =4;            // 分享链接发起者获得的奖励数量
+    optional int32 sex = 5;                     // 用户性别
+}
+
+// 邀请有礼 cmd: 6560
+message DDZInviteRewardReq {
+}
+message DDZInviteRewardRsp {
+    repeated InviteHelper helper_info = 1;          // 助力好友信息
+    optional ComShareInfo share_info = 2;           // 分享信息
+    optional int32 button_type = 3;                 // 1:邀请 2:超级礼包 3:已领奖
+    optional string gold = 4;                       // 获得金币数 100*x
+    optional int32 gold_helper = 5;                 // 一位玩家助力获得的金币值
+}
+
+// 领取邀请有礼奖励 cmd: 6561
+message DDZInviteRewardGetReq {
+}
+message DDZInviteRewardGetRsp {
+    optional int32 gold = 1;                        // 获得金币数
+}
+
+message DDZInviteHelpRetMsg {
+    optional int32 ret_help = 1;                 // 0:助力成功 1:今日不能再帮助好友 2:好友已经不需要帮助 3:已经帮助过该好友 4:自己给自己助力
+    optional string nick = 2;                    // 好友昵称
+    optional int32 gold = 3;                     // 金币
+    optional int32 remain_times = 4;             // 剩余次数
+}
+
+// 邀请有礼结果通知 cmd: 6562
+message DDZInviteHelpRetNtf {
+    optional DDZInviteHelpRetMsg inviter_help_ret = 1;  // 邀请有礼结果返回
+}
+
+message DDZNeedPopMsg {
+    optional int32 need_pop = 1;                // 0 不需要 1 需要
+    optional int32 level = 2;                   // 弹窗优先级
+    optional int32 pop_type = 3;                // 类型 1001: 邀请有礼
+}
+
+// 窗口是否需要弹出 cmd： 6563
+message DDZNeedPopReq {
+}
+message DDZNeedPopRsp {
+    repeated DDZNeedPopMsg pop_msg = 1;        // 弹窗通知
+}
+
+//cmd: 6600 赛事邀请弹窗
+message MatchNeedPopReq{
+}
+message MatchNeedPopRsp{
+    optional bool can_pop_up = 1;
+}
+
+
+// 通过邀请连接进入游戏处理 cmd 6564
+message BeInviteEnterReq {
+    optional InviterInfo inviter_info = 1;                // 邀请者信息
+}
+message BeInviteEnterRsp {
+    optional DDZInviteHelpRetMsg inviter_help_ret = 1;             // 邀请有礼结果返回
+    optional DDZDiamondRedPacketRetMsg diamond_share_ret = 2;      // 钻石活动分享结果返回
+    optional DDZDiamondRedPacketRetMsg diamond_store_ret = 3;      // 钻石商城分享结果返回
+}
+
+// 公众号点击关注有礼切回游戏按钮 cmd: 6565
+message DDZSubscribeGiftReq {
+}
+message DDZSubscribeGiftRsp {
+}
+
+// 公众号关注有礼切回游戏弹窗提示 cmd: 6566
+message DDZSubscribeGiftWindowEvt {
+	optional string failed_words = 1;        // 领取失败(已领取)文案         
+    optional int32 success_value = 2;		 // 成功领取金币值
+    optional int32 status = 3;				 // 领取状态 0:失败(已领取) 1:成功(未领取)
+    
+    repeated ModuleConfig module = 4;        // 模块栏配置
+}
+
+message JoinMatchRewardMsg {
+    repeated int32 stage_status = 1;           // 1未完成 2进行中 3已完成   顺序依次为初中高
+    optional string reward_desc = 2;           // 奖励描述
+    repeated ProgressReportMsg report = 3;     // 任务进度
+    optional int32 get_status = 4;             // 1不能领取 2可以领取 3已经领取
+    optional string activity_date = 5;         // 活动时间
+}
+
+// 参赛有礼 cmd: 6567
+message DDZJoinMatchRewardReq {
+}
+message DDZJoinMatchRewardRsp {
+    optional JoinMatchRewardMsg info = 1;      // 参赛有礼活动信息
+}
+
+// 参赛进度通知 cmd: 6568
+message DDZJoinMatchRewardNtf {
+    repeated ProgressReportMsg report = 1;     // 任务进度
+}
+
+// 参赛有礼 领取奖励 cmd: 6569
+message DDZJoinMatchRewardGetReq {
+}
+message DDZJoinMatchRewardGetRsp {
+    optional int32 gold = 1;                    // 金币数目
+    optional int32 card_counter = 2;            // 记牌器数目
+    optional int32 lottery_ticket = 3;          // 奖券数目
+    optional string share_reward = 4;           // 分享描述
+    optional ComShareInfo share_info = 5;       // 分享图文
+    optional JoinMatchRewardMsg info = 6;       // 参赛有礼活动信息
+}
+
+// 参赛有礼 分享成功回调 cmd: 6570
+message DDZJoinMatchRewardShareReq {
+}
+message DDZJoinMatchRewardShareRsp {
+}
+
+// 所有分享成功回调 cmd: 6571
+message DDZComShareSucBackReq {
+    optional int32 share_id = 1;
+}
+message DDZComShareSucBackRsp {
+}
+
+// 背包检测有无等级卡 cmd 6572
+message DDZBackpackLevelCardReq {
+}
+message DDZBackpackLevelCardRsp {
+	optional int32 status = 1;			// 0 没有等级卡 1 有等级卡
+}
+
+// 参赛有礼是否在活动时间内 cmd: 6573
+message DDZInJoinMatchRewardReq {
+}
+message DDZInJoinMatchRewardRsp {
+}
+
+// 流量主 需求  用户观看广告 cmd:6574
+message UserADInfoReq{
+	optional int32 req_type = 1;    // 1:普通领取奖励 2:分享领取
+    optional int32 cur_time = 2;    // 当前第几次
+}
+message UserADInfoRsp {
+	optional int32 next_time = 1;  //下一次可领取时间  单位为秒 次数没有了的话为-1    未查看过为0
+	optional int32 total_times = 2; //总的次数
+	optional int32 current_time = 3;  //当前第几次
+    optional int32 current_gold = 4;  //当前轮金币数
+	optional int32 last_gold = 5;  //上一轮金币数
+    optional int32 last_diamond = 6;  //上一轮钻石数
+    optional bool double_switch = 7; // 是否展示分享翻倍按钮
+    optional ComShareInfo share_info = 8; // 分享信息
+}
+
+// 封号通知 cmd: 6575
+message DDZUserIsOffNtf {
+    optional string ban_info = 1;           // 被封文案
+}
+
+// 记牌器立即邀请成功后通知客户端邀请者信息 cmd: 6576
+message DDZUpdateCardCounterEvt {
+	optional int32 remain_counts = 1;              // 可使用次数
+    optional int32 share_add_counts = 2;           // 分享+几次
+    optional int32 invite_add_counts = 3;          // 邀请+几次
+    optional int32 share_chances = 4;              // 分享可领取次数
+    optional int32 invite_chances = 5;             // 邀请可领取次数
+    optional int32 valid_days = 6;                 // 有效天数
+    optional int32 share_max_chances = 7;	       // 分享最大次数
+    optional int32 invite_max_chances = 8;	       // 邀请最大次数
+    optional int32 already_shared_chances = 9;	   // 已分享次数
+    optional int32 already_invited_chances = 10;   // 已邀请次数
+}
+
+// 是否是高段位 cmd: 6577
+message DDZIsHighMatchLevelReq {
+}
+message DDZIsHighMatchLevelRsp {
+    optional string high_level_desc = 1;          // 高段位高峰期开放描述
+    optional int32 can_join = 2;                  // 是否可以进入 
+}
+
+// 用戶授权后的信息 cmd: 161
+message UserAuthorizationReq {
+    optional string nick = 1;                     // 用户昵称
+    optional int32 sex = 2;                       // 用户性别
+    optional string portrait = 3;                 // 用户头像
+}
+message UserAuthorizationRsp {}
+
+message DiamondInviteTask{
+    optional int32 task_num = 1;                       // 任务规定的数量
+    optional int32 task_progress = 2;                  // 完成的进度(邀请了多少人)
+    optional bool task_status = 3;                     // 任务是否完成
+    optional int32 task_reward = 4;                     // 任务奖励
+}
+
+message DDZInviteRewardDiamondNtf {
+    repeated DiamondInviteTask task_conf = 1;        // 被邀请人信息
+    optional ComShareInfo share_info = 2;           //  邀请信息
+}
+
+message DDZDiamondRedPacketRewardNtf {
+    repeated DiamondShareHelper helper_info = 1;    // 点击邀请链接进来的用户的信息
+    optional int32 share_times = 2;                 // 当日分享次数
+    optional ComShareInfo share_info = 3;           // 分享信息
+}
+
+// CMD:6601 活动获取钻石
+message DDZActivityDiamondReq{
+}
+message DDZActivityDiamondRsp{
+    optional DDZInviteRewardDiamondNtf invite_info = 1;          // 邀请
+    optional DDZDiamondRedPacketRewardNtf share_info = 2;        // 分享
+    optional int32 reward_num = 3;                               // 领取的奖励
+}
+
+message DDZDiamondRedPacketRetMsg {
+    optional int32 ret_help = 1;                 // 0:助力成功 1:今日不能再帮助好友 2:好友已经不需要帮助 3:自己给自己助力 4:新用户助力成功
+    optional string nick = 2;                    // 好友昵称
+    optional int32 diamond = 3;                  // 钻石
+}
+
+// CMD:6602 分享得钻石助力通知
+message DDZDiamondRedPacketHelpRetNtf {
+    optional DDZDiamondRedPacketRetMsg diamond_share_ret = 1;  // 分享得钻石结果返回
+}
+
+// CMD:6603 是否是不一样的微信群
+message IsDifferentWXGroupReq{
+    optional int32 share_type = 1;                // 不同活动的分享id
+    optional string encrypted_data = 2;           // 加密数据
+    optional string iv = 3;                       // 加密算法的初始向量
+    optional string sdk_version = 4;              // 微信基础库版本  大于等于2.3.0则默认返回成功
+    optional int32 cur_time = 5;                  // 用来校验是否已经领取过，580改成点击链接领取后需要防止重复领取
+}
+message IsDifferentWXGroupRsp{
+    optional bool is_different = 1;               // 是否分享过该群
+    optional int32 reward_num = 2;                // 分享获得的奖励数量
+    optional int32 share_times = 3;               // 当日分享次数
+    optional int32 task_share_times = 4;          // 分享任务的奖励上限次数
+    optional int32 get_reward =5;                 // 获得的奖励
+}
+
+// CMD:6604 提现
+message ExchangeCashReq {}
+message ExchangeCashRsp {
+    optional string last_red_packet = 1;          // 红包余额
+    optional int32 exchange_limit = 2;           // 兑换需要的最少余额
+    optional int32 total_exchange_cash = 3;      // 累计提现
+}
+
+// CMD:6605 红包信息
+message ExchangeCashInfoReq {}
+message ExchangeCashInfoRsp {
+    optional string last_red_packet = 1;               // 红包余额
+    optional int32 exchange_limit = 2;           // 兑换需要的最少余额
+    optional int32 total_exchange_cash = 3;      // 累计提现
+    optional int32 first_exchange_limit = 4;     // 第一次提现的要求金额
+    optional int32 not_first_exchange_limit = 5;     // 非第一次提现的要求金额
+}
+
+// CMD:6607 红包奖励明细
+message PickRedPacketRecordsReq {}
+message PickRedPacketRecordsRsp {
+    message Record {
+        optional string source = 1;                 // 来源
+        optional string amount = 2;                  // 数额
+        optional int32 timestamp = 3;               // 获得时间
+    }
+    repeated Record record = 1;
+}
+
+// CMD:6608 红包提现明细
+message ExchangeCashRecordsReq {}
+message ExchangeCashRecordsRsp {
+    message Record {
+        optional int32 status = 1;                  // 状态
+        optional string amount = 2;                  // 数额
+        optional int32 timestamp = 3;                // 获得时间
+    }
+    repeated Record record = 1;
+}
+
+
+message DDZDiamondStoreRewardNtf {
+    repeated DiamondShareHelper helper_info = 1;    // 点击邀请链接进来的用户的信息
+    optional int32 share_times = 2;                 // 当日分享次数
+    optional int32 task_share_times = 3;            // 任务次数
+    optional int32 task_reward_diamond = 4;         // 每次分享可得的钻石数量
+    optional ComShareInfo share_info = 5;           // 分享信息
+}
+
+
+// CMD:6610 钻石商城分享得钻石助力通知
+message DDZDiamondStoreHelpRetNtf {
+    optional DDZDiamondRedPacketRetMsg diamond_store_ret = 1;  // 钻石商城分享得钻石结果返回
+}
+
+// CMD:6611 钻石商城获得钻石
+message DDZDiamondStoreRewardReq{
+}
+message DDZDiamondStoreRewardRsp{
+    optional DDZDiamondStoreRewardNtf share_info = 1;        // 分享
+}
+
+message DDZDiamondShareSuccNtf{
+    optional string ntf_text = 1;              //提示文本
+}
+
+
+// --------------残局相关------------------ 
+message DDZEndGameAwardMsg {
+    optional int32 award_type = 1;              // 奖励类型 1.钻石 2.记牌器 3.金币 4.红包 5.超级加倍卡
+    optional string award_value = 2;            // 奖励值，由于红包的精度问题，所以统一使用字符串类型
+}
+// cmd:8008 残局闯关结算通知
+message DDZEndGameOverEvt {
+    optional int32 is_winner = 1;                    // 是否胜利  0失败 1胜利
+    repeated DDZEndGameAwardMsg awards = 2;          // 奖励信息, 没有奖励则无该字段
+    optional ComShareInfo share_info = 3;            // 分享相关信息  不能分享没有该字段
+    optional int32 share_type = 4;                   // 分享类型 1胜利分享
+    optional int32 end_type = 5;                     // 1正常结束 2 长时间用户未操作
+    optional int32 endgame_level = 6;                // 结算后玩家通过关卡数
+    optional int32 endgame_timestamp = 7;            // 通过的时间戳
+    optional int32 is_replay = 8;                    // 是否是已过关卡 0不是 1是
+    optional int32 replay_count_down = 9;            // 重玩结束时间 时间戳
+}
+
+// 进入残局大厅 cmd: 8009
+message EndGameHallReq {
+}
+message EndGameHallRsp {
+    optional int32 cur_level = 1;                  // 当前通过最高关卡
+    optional int32 challenge_level = 2;            // 挑战过的最高关卡
+    optional int32 total_level = 3;                // 总关卡
+    optional int32 enter_reward_diamond_num = 4;   // 当日首次进入大厅奖励,有的话就代表是当日首次
+    optional ComShareInfo share_info = 5;          // 分享信息
+    repeated AwardInfoMsg award_info = 6;          // 奖品明细
+}
+message AwardInfoMsg {
+    optional int32 level = 1;                   // 奖励的关卡
+    optional int32 diamond_fee = 2;             // 入场费，消耗钻石
+    optional int32 diamond_gain = 3;            // 奖励钻石数量，为0则没有
+    optional int32 card_counter = 4;            // 奖励记牌器数量，为0则没有
+    optional int32 gold = 5;                    // 奖励金币数量，为0则没有
+    optional string bonus = 6;                  // 奖励红包数量，为0则没有(由于精度问题，使用字符串格式)
+    optional int32 super_multi_card = 7;       // 奖励超级加倍卡, 为0则没有
+}
+
+// CMD:8010 查看钻石消耗
+message DDZEndGameQueryDiamondFeeReq {
+    optional int32 endgame_level = 1;           // 查看的关卡
+}
+message DDZEndGameQueryDiamondFeeRsp {
+    optional int32 diamond_fee = 1;             // 需要消耗的钻石数目
+}
+
+// 用户使用残局闯关提示
+message UseEndGameRemindReq {
+}
+message UseEndGameRemindRsp {
+    repeated int32 out_cards = 1;                  // 能赢的情况下出牌提示
+    optional bool is_fail = 2;                     // 是否必输
+}
+
+// 残局排行榜分享 CMD = 8012
+message EndGameRankReq {}
+message EndGameRankRsp {
+    optional ComShareInfo share_info = 1;          // 分享信息
+}
+
+// CMD:8007 残局通过数改变通知
+message EndGameLevelChangeNTF {
+    optional int32 endgame_level = 1;               // 残局通过数
+}
+
+// 重玩 CMD 8013 
+message DDZEndGameReplayReq {
+}
+message DDZEndGameReplayRsp {
+}
+
+// 残局排行榜分享 CMD = 8014
+message EndGameRankShareReq {}
+message EndGameRankShareRsp {
+    optional ComShareInfo share_info = 1;          // 分享信息
+}
+
+// ----------------------------------------------------
+
+message DDZBonusesStatusMsg{
+    optional int32 status = 1;                       // 0待开启 1待领取 2已领取
+    optional int32 need_num = 2;                     // 需要邀请人数
+}
+message DDZNationalDayBonusesMsg{
+    optional string activity_time = 1;               // 活动时间
+    repeated DDZBonusesStatusMsg bonuses_info = 2;   // 红包状态
+    optional int32 helper_num = 3;                   // 助力人数
+    optional int32 next_need_num = 4;                // 再邀请x个新人可抢下一个红包
+    optional int32 bonuses_sum = 5;                  // 累计抢红包 单位(分)   
+    optional int32 bonuses_can_receive = 6;          // 可以领取的红包 单位(分)   
+    optional ComShareInfo share = 7;                 // 邀请新人助攻图文
+    optional int32 remain_day = 8;                   // 活动剩余天数
+    optional int32 remain_red = 9;                   // 剩余待领取红包数 0时不显示小红点
+}
+// CMD:6615 查看国庆红包活动状态
+message DDZNationalDayBonusesReq{
+}
+message DDZNationalDayBonusesRsp{
+    optional DDZNationalDayBonusesMsg info = 1;      // 活动信息
+}
+
+// CMD:6616 领取红包
+message DDZNationalDayBonusesGetReq{
+    optional int32 need_num = 1;                     // 需要邀请人数
+}
+message DDZNationalDayBonusesGetRsp{
+    optional DDZNationalDayBonusesMsg info = 1;      // 活动信息
+    optional int32 bonuses = 2;                      // 领取到的红包 单位(分)   
+}
+
+// CMD:6617 助攻成功
+message DDZNationalDayBonusesHelpNtf {
+    optional int32 ret_help = 1;                     // 助力结果 0成功 1失败
+    optional string friend_nick = 2;                 // 被助攻好友昵称
+}
+
+message NationalDayBonusesHelperMsg{
+    optional int32 uin = 1;                         // 助力者uin
+    optional string icon = 2;                       // 助力者头像
+    optional string nick = 3;                       // 助力者昵称
+    optional int32 sex = 4;                         // 性别 0男 1女
+}
+// CMD:6618 助攻列表
+message DDZNationalDayBonusesHelperReq{
+}
+message DDZNationalDayBonusesHelperRsp{
+    repeated NationalDayBonusesHelperMsg helper_info = 1;  // 助攻用户信息
+}
+
+
+// --------------APP 新增 start------------------
+// 单独通知用户金币变化
+message EvtUserGoldChange {
+    optional int64 gain_gold=1; // gain gold
+    optional int64 gold=2; // gold
+    optional string reason=3; // reason
+    optional string desc=4 ;//description
+}
+
+// 单独牌桌内用户金币变化
+message EvtOtherUserGoldChange {
+    optional int64 gain_gold=1; // gain gold
+    optional int64 gold=2; // gold
+    optional string reason=3; // reason
+    optional string desc=4 ;//description
+	optional int32 uin = 5; // uin
+}
+
+// 邀请好友小红点通知-7009
+message InviteInfoRsp {
+    optional int32 num = 1;    // 有多少个活动奖励
+}
+
+// 微信用户注册
+message WXUserRegReq {
+    optional string sign = 1;         // 签名md5(secret|openid|access_token|device_id)
+    optional string openid = 2;       // 微信 openid
+    optional string access_token = 3; // access_token
+    optional string expire_date = 4;  // 过期时间
+    optional string channel = 5;      // channel
+    optional int32 version = 6;       // version
+    optional string os = 7;           // 系统
+    optional string lang = 8;         // language
+    optional string res_md5 = 9;
+    optional string device_id = 10;     // 设备的唯一标识,从189版本开始加到sign里面一起验证
+	optional string promotion_code = 11; //邀请码
+	optional int32 hot_version = 12;                 // 热更版本号
+}
+
+// 斗地主奖励项
+message MatchReward {
+	optional int32 type = 1;				// 奖励类型 1金币,2福卡,3-16等级卡(对应1-14等级)
+	optional int64 value = 2;					// 奖励数
+}
+
+// wx 斗地主随机数值奖励
+message WxMatchReward {
+	optional int32 type = 1;				// 奖励类型 1金币,2福卡,3-16等级卡(对应1-14等级)
+	optional int64 value_min = 2;					// 奖励数
+	optional int64 value_max = 3;					// 奖励数
+}
+
+// wx 斗地主比赛配置
+message WxGrage_Detail{
+	optional int32 level = 1;			// 等级
+	optional string title = 2;			// 称号
+	optional int32 game_times = 3;		// 比赛局数
+	
+	repeated WxMatchReward reward_top_1 = 4;	// 第一奖励, 可能多个
+	repeated WxMatchReward reward_top_2 = 5;	// 第二奖励, 可能多个
+	repeated WxMatchReward reward_top_3 = 6;	// 第三奖励, 可能多个
+}
+	
+// 斗地主比赛配置
+message DDZMatchConfig{
+	optional int64 entry_fee = 1;						// 报名入场费
+	optional int64 min_gold_limit = 2;						// 入场条件,携带金币必须大于该值
+	optional int32 start_cond_player_count = 3;				// 开赛人数
+	optional int32 game_count_per_match = 4;				// 一次比赛的游戏局数,自身不同阶级有不同数
+	optional int64 service_charge_per_game = 5;				// 一局游戏服务费
+	optional int32 practice_roomid = 6;						// 练习场roomid
+	optional string grade_detail = 7;						// 每阶配置详情,json格式
+	
+	message Grage_Detail{
+		optional int32 level = 1;			// 等级
+		optional string title = 2;			// 称号
+		optional int32 game_times = 3;		// 比赛局数
+		
+		repeated MatchReward reward_top_1 = 4;	// 第一奖励, 可能多个
+		repeated MatchReward reward_top_2 = 5;	// 第二奖励, 可能多个
+		repeated MatchReward reward_top_3 = 6;	// 第三奖励, 可能多个
+	}
+	repeated Grage_Detail grade_detail_nest = 8;						// 每阶配置详情
+	
+	optional int64 practice_gold = 9;				// 练习场金币
+	optional string match_rule_path = 10;			// 规则图片路径
+	optional string up_max_lv_hint = 11;			// 达到最高等级提示语
+	optional int32 valid_lv_max = 12;			// 实际最高等级
+	optional int32 valid_lv_min = 13;			// 实际最低等级
+	
+	repeated WxGrage_Detail wx_grade_detail_nest = 14;						// 每阶配置详情
+}
+
+// 刮刮卡详情
+message ChanceCardDetail {
+	optional string item_name = 1;					// 物品名称
+	optional int32 uin = 2;						// 兑换用户的ID
+	optional string card_welfare_id = 3;			// 兑换ID
+	optional int32 card_amount = 4;				// 卡面价值
+	optional string effective_time = 5;				// 过期时间
+	optional string create_time = 6;				// 创建时间
+	
+	optional int32 status = 7;						// 物品状态
+	optional string mchid = 8;						// 商户id
+	optional int32 mch_got = 9;					// 商户收入
+	optional string welfare_time = 10;				// 兑换时间
+	
+	optional string remark = 11;						// 备注
+}
+
+// 增加刮刮卡
+message UserAddChanceCard {
+    repeated ChanceCardDetail card_list = 1;			// 刮刮卡列表
+}
+
+// 减少刮刮卡
+message UserDelChanceCard {
+    repeated string card_welfare_id = 1;			// 唯一兑换码列表
+}
+
+message AppGameConfRsp {
+    message GiftInfo {
+        optional int64 gold = 1;  // gift gold
+        optional int32 item_id = 2;  // gift id
+    }
+    repeated GiftInfo desk_gift_list = 1; // gift received
+    optional int64 timestamp = 2; // timestamp
+    message RoomInfo {
+        optional int32 id = 1;                 // room id
+        optional int64 carry_min = 2;          // 最小buy
+        optional int64 carry_limit = 3;        // 最大buy
+        optional int64 small_blind = 4;        // 小盲
+        optional int64 big_blind = 5;          // 大盲
+        optional int32 seat_limit = 6;         // 几人桌
+        repeated int64 bets = 7[packed=true];  // 可选下注项
+        optional int64 enter_limit = 8;        // 进入房间最下金币携带
+        optional int32 group = 9;              // group id
+        optional int32 must_spend = 10;        // 必须下多少筹码
+        optional float service_rate = 11;      // 私人定制房间的服务费率
+        optional int64 carry_chips = 12;       // 私人定制房间的进场携带
+        optional int32 vip_room = 13;           // 私人定制VIP房间
+        optional string service_fee = 14;      // 私人定制房间的服务费率字符串
+    }
+    repeated RoomInfo room = 3; // room infos
+    message GroupDescInfo {
+        optional int32 id = 1; // group id
+        optional string name  = 2; // group property
+    }
+    repeated GroupDescInfo group = 4; // group desc
+    message GroupInfo {
+        optional int32 group_id = 1; // group id
+        optional string desc = 2; //group field
+    }
+    repeated GroupInfo group_to_field = 5; // group to field
+    message LevelInfo {
+        optional int32 m = 1;  // gold
+        optional string n = 2; // level title
+        optional string color = 3; // color
+    }
+    repeated LevelInfo level = 6; // level infos
+    repeated int64 dayreward = 7[packed=true]; // dayreward conf
+    optional int32 broadcast_cost = 8; // broadcast cost
+    message CNY_MONEY_INFO {
+        optional string item_id = 1; // item id
+        optional int32 cost = 2;  // cost cny
+        optional string cost_desc = 3; // cost desc
+        optional string cost_type = 4; // cost tpye
+        optional int64 gold = 5; // reward gold
+        optional int64 extra = 6; // extra reward gold
+        optional string desc = 7 ; // description
+        optional string dianxin_code = 8[deprecated=true]; // dianxin code
+        optional string ydmm_code = 9[deprecated=true]; // 移动mm code
+        optional string liantong_code = 10[deprecated=true]; // 联通code
+        message SortedBillInfo {
+            repeated int32 DX = 1[packed=true]; // 电信
+            repeated int32 LT = 2[packed=true]; // 联通
+            repeated int32 YD = 3[packed=true]; // 移动
+            repeated int32 WM = 4[packed=true]; // 微米
+            repeated int32 DEFAULT = 5[packed=true]; // aws 支付
+        }
+        optional SortedBillInfo sorted_bill_types = 11;// bill infos
+        optional int32 extra_desc = 12; // desc
+        message WeimiCodeInfo {
+            optional string liantong = 1;
+            optional string yidong = 2;
+            optional string dianxin = 3;
+        }
+        optional WeimiCodeInfo weimi_pay_codes = 13[deprecated=true];
+        optional string wii_code = 14[deprecated=true]; // wii 支付
+        optional string aws_code = 15[deprecated=true]; // aws code
+        optional string google_code = 16[deprecated=true]; // google code
+        optional bool hot = 17;        // 是否热门商品
+        optional int32 goodstatus = 18; // 超值/最热销/top商品
+        optional float cost_float = 19; // 价格的float表示，因为美元有时候会出现0.99之类的
+        optional bool is_show = 20;     // 是否展示
+    }
+    repeated CNY_MONEY_INFO cny_money2gold = 9; // money 2 gold infos
+
+    optional int32 weimi_show_frame_switch = 11[deprecated=true]; // weimi switch
+    repeated string qq_communicate =12; // qq communication
+    message ErrorCodeInfo {
+        optional int32 id = 1;
+        optional string desc = 2;
+    }
+    repeated ErrorCodeInfo error_list = 13; // error list
+    message ActivityRewardInfo {
+        optional int32 id =1;
+        optional int64 gold = 2;
+        repeated int64 reward_gold_list = 3;
+    }
+    repeated ActivityRewardInfo activity_rewards = 14; // activity reward config
+    optional bool has_pick_beauty_day_reward = 15;     // check if player has picked beauty day reward
+    repeated CNY_MONEY_INFO cny_gift_packs = 16;   // gift packs 礼包
+    message MAPPED_GIFT_ID {   // 礼包的id对应的商品item_id
+        optional string gift_id = 1;
+        optional string item_id = 2;
+    }
+    repeated MAPPED_GIFT_ID gift_packs_to_display = 17;    // 要展示的礼包, 里面是礼包的item id
+    optional int32 first_buy = 18;
+    optional int32 default_delay = 19;         // 玩家默认的操作超时时间
+    repeated RoomInfo jh_room = 20; // 金花场的房间配置
+    optional bool no_evil = 21; // 不做恶，是否显示 美女 什么的
+    repeated GroupDescInfo jh_group = 22; // 金花场的场次配置
+
+    message DailyReward{
+        optional int32 index = 1;
+        optional int32 type = 2;
+        optional int64 amount = 3;
+        optional string desc = 4;
+    }
+    repeated DailyReward daily_rewards = 23; // 转盘每日登录随机奖励配置
+    repeated CNY_MONEY_INFO new_pay_conf = 24;   // 新的计费点
+
+    message DailyRewardV2{
+        optional int32 index = 1;
+        message RewardItem{
+            optional int32 type = 1;
+            optional int64 amount = 2;
+            optional string desc = 3;
+			optional int64 activity_amount = 4;	// 新增活跃积分
+        }
+        repeated RewardItem items = 2;
+    }
+    repeated DailyRewardV2 daily_rewards_v2 = 25;        // 新的每日登录奖励，包含礼包、积分
+
+    optional string phone = 26;                         // 绑定的手机号码
+    
+    message ActivityForStore {
+        optional string activity_id = 1;
+        optional string banner_url = 2;
+        optional string activity_url = 3;
+    }
+    optional ActivityForStore store_activity = 27;       // 用来显示商城的活动
+
+    message TimeBox{
+        optional int32 box_index = 1;                   // 当前领取到哪个阶段了
+        message ConfItem{
+            optional int32 index = 1;                   // 第几个阶段，从0开始
+            optional int64 gold = 2;                    // 这个阶段可以领取的金币数量
+            optional int32 time_begin = 3;              // 这个阶段开始的时间点，单位秒
+            optional int32 time_end = 4;                // 这个阶段完成的时间点，单位秒
+        }
+        repeated ConfItem items = 2;
+    }
+    optional TimeBox time_box = 28;                     // 时间宝箱配置
+    optional uint32 modules = 29;                       // 模块位
+
+    message WhenToShare {
+        optional int32 classic_win_big_blind = 1;       // 经典场 赢取筹码的大盲倍数
+        optional int32 bairen_win_chips = 2;            // 百人场 赢取筹码数
+        optional int32 bairen_win_over_i_had = 3;       // 百人场 赢取的筹码占初始筹码的百分比 (10即为10%)
+    }
+    optional WhenToShare when_to_share = 30;
+    optional string invite_code = 31;
+    repeated int32 period_rooms = 32;                   // 可以显示实时战绩的房间id
+    repeated int32 private_times = 33;                  // 私人房间可配置的时长
+    repeated string hiding_portrait = 34;               // 隐身头像url
+    
+    message JackpotConf {                               // jackpot奖金配置
+        optional int32 card_type = 1;                   // 牌型
+        optional int32 percentage = 2;                  // 占比
+        optional int32 reward_type = 3;                 // 1 是胜利奖励，2 是至尊失手奖
+    }
+    repeated JackpotConf classic_jackpot_conf = 35;      // 经典场jackpot配置  AA, KK牌型分别为20, 21
+    repeated JackpotConf bairen_jackpot_conf = 36;       // 百人场jackpot配置
+    repeated int32 buyin_multiples = 37;                 // 买入筹码的限制倍数
+    
+    repeated GroupInfo tbz_group = 38;                   // 推豹子group名称
+	
+	// banner 跳转
+	message DDZMatchBannerLink {
+		optional string name = 1;				// 辨别名
+		optional string url = 2;				// 对应的 url
+		optional string dest = 3;				// 点击后的跳转页面
+	}
+	repeated DDZMatchBannerLink banner_link = 39;		// banner 跳转
+    optional int32 beauty_day_reward = 40;               // 美女每日奖励额度
+    optional int32 safe_box_base = 41;                   // 保险箱滑杆一次增加的数额
+    message BrokeReturn{
+        // min < x <= max
+        optional int64 min = 1;                         // 购买金币的下界
+        optional int64 max = 2;                         // 购买金币的上界
+        optional string percent = 3;                    // 返还金币比率字符串
+    }
+    repeated BrokeReturn broke_return = 42;             // 破产补助返回比率配置列表
+    optional int64 diamond = 43;                        // 自己的钻石数量
+    optional int32 diamond2gold_ratio = 44;             // 钻石兑换金币的比率
+    message ItemConf{
+        optional string name = 1;                       // 商品 ITEM ID，唯一的
+        optional int32 type = 2;                        // 商品类型 0购买金币1购买物品2购买钻石
+        optional int32 currency = 3;                    // 用金币或者钻石去兑换 0:用金币兑换1:用钻石兑换2:用毛爷爷兑换3:用福卡去兑换
+        optional int64 price = 4;                       // 价格
+        optional int64 amount = 5;                      // 可以兑换到的数量
+        optional int32 label = 6;                       // 标签类型, 0: 无标签；1:推荐；2:热销
+        optional int32 gift_id = 7;                     // 礼物ID
+		optional int32 add_count = 8;                   // 附赠数量,仅仅用于显示
+		optional string title = 9;						// 标题描述
+        optional bool is_show = 10;                     // 是否展示
+		optional int64 add_count64 = 11;                // 
+    }
+    repeated ItemConf item_list = 45;                   // 商品列表
+    repeated ActivityForStore store_activities = 46;    // 商城里面的活动列表
+    repeated LevelInfo credit_level = 47;               // 比赛积分的名称
+    optional string qq_prompt = 48;                     // 官方QQ
+    optional int32 fetch_broke_count = 49;              // 剩余可领取破产补助的次数
+    optional string qq_prompt_last = 50;                // QQ号
+    optional int32 bairen_support = 51;                 // 是否支持百人场入口，1: 是；0:否
+    optional int32 agreement_switch = 52;               // 显示用户协议的开关，1: 显示；0:不显示
+    optional int32 exchange_support = 53;               // 是否支持商城兑换专区入口，1: 是；0:否
+	
+	// 斗牛房间配置
+	message BullFightRoomInfo{
+		optional string room_name = 1;					// 房间名称
+		optional int32	base_chip = 2;					// 房间底注
+		optional int32	enter_limit_low = 3;			// 房间下限
+		optional int64	enter_limit_high = 4;			// 房间上限
+		optional int32	online_user_count = 5;			// 房间当前人数
+		optional int32  room_level = 6;					// 房间等级
+		optional string pic_url = 7;					// 房间图片url
+		optional int32  disable = 8;					// 房间是否显示 0显示 1不显示
+		optional int32  room_group = 9;					// 房间等级 1、新手房 2、初级房 3、中级房 4、高级房 5 伯爵 6尊爵
+		optional int32  payment_recommend =10;			// 支付推荐  付款金额
+		optional int32  muffle_flag =11;				// 炸金花场专用，  是否是闷牌场 1是 0否
+		optional int32 	room_type = 12;					// 同一个游戏,不同小分支 如斗地主叫分/抢地主
+		optional int32 	lose_max = 13;					// 一局的输赢封顶
+		optional int32 	taifei = 14;					// 台费
+	}
+	repeated BullFightRoomInfo bull_fry_room = 54;			//炸金牛房间配置
+	repeated BullFightRoomInfo bull_classic_room = 55;			//看牌抢庄房间配置
+	message ChanceCardUrl {
+		optional int32 item_id = 1;				// 福卡兑换 item_id
+		optional string url = 2; 				// 对应url
+	}
+	repeated ChanceCardUrl chance_card_url = 56;		// 玩家刮刮卡url
+	message BankerQuitMode {
+        optional int32 mode = 1;                         // 模式，需要回传给服务端
+        optional string name = 2;                        // 模式名称, 照着显示就行
+    }
+    repeated BankerQuitMode banker_quit_mode = 57;			
+	optional int32 texas_count = 58;						// 德州在线人数
+	optional int32 bull_fight_count = 59;					// 斗牛总在线人数
+	optional int32 tbz_count = 60;						// 推豹子在线人数
+	
+	message GameList{
+		optional int32  game_index = 1;				//游戏排列 按照从小到大排列
+		optional string game_name = 2;				//游戏名称
+		optional int32  game_display = 3;			//游戏是否展示 1是展示 0是不展示
+		optional string game_icon = 4;				//游戏icon
+		optional string game_download_images=5;		//游戏点击下载图片
+	}
+	
+	repeated GameList game_list= 61;		//游戏配置列表
+	optional int32 bankrupt_money = 62;		//斗牛场破产金币下限
+	repeated BullFightRoomInfo gold_flower_room = 63; //炸金花房间配置
+	optional int32 bankrupt_count = 64;		//破产可领取次数
+	
+	optional int32 single_game=65;			//按位代表开关  第一个位代表斗牛 第二位代表炸金牛   0表示关闭 1表示开启
+	optional int32 lhd_player_count=66;		// 龙虎斗房间人数
+	optional int32 return_gift_switch=67;		// 礼物回礼提示开关 0 关闭 1开启
+	optional string recharge_return_fucard=68;		// 充值回馈钻石提示 300:300 代表冲300钻石送300 福卡
+	optional string fuli_words=69;		// 福利中心文案
+	repeated BullFightRoomInfo double_buckle_room = 70; //双扣房间配置
+	repeated BullFightRoomInfo fighting_landlords_room = 71; //斗地主房间配置
+	
+	optional int32 ddz_match_promoter_swtcher = 72; 	//斗地主推广员开始 0关闭;1开启
+	optional string ddz_match_promoter_itemrid = 73; 	//斗地主推广员特殊商城商品id
+	
+	repeated string ddz_hall_loop_msg = 74; 			//大厅循环消息
+}
+
+// 注册
+message UserRegReq {
+    optional string nick = 1;
+    optional string uuid = 2;
+    optional string sign = 3;           // 签名md5(secret|uuid|device_id)
+    optional string device_id = 4;      // 设备的唯一标识,从189版本开始加到sign里面一起验证
+    optional string mac_addr = 5;
+    optional string channel = 6;
+    optional int32 version = 7;
+    optional string os = 8;
+    optional string lang = 9;
+    optional string res_md5 = 10;
+	optional string promotion_code = 11;		//邀请码
+	optional int32 hot_version = 12;                 // 热更版本号
+}
+
+// 推广员总体相关配置
+message DDZMatchPromoteConfig {
+	optional int64 cost_to_promoter = 1;		// 成为推广员的花费代价
+	optional int64 reward_fir_level = 2;		// 每增加一个一级下线的一次性奖励
+	optional int64 reward_sec_level = 3;		// 每增加一个二级下线的一次性奖励
+	optional int32 reward_rate_fir_level = 4;	// 每次一级下线消费返还比例(万分比)
+	optional int32 reward_rate_sec_level = 5;	// 每次一级下线消费返还比例(万分比)
+	optional string banner_url = 6;				// 顶部图片地址
+	optional string how_to_promoter_url = 7;	// 如何推广图片地址
+}
+
+// 推广员业绩
+message DDZMatchPerformance {
+	optional int32 fir_level_count = 1;			// 一级下线个数
+	optional int32 sec_level_count = 2;			// 二级下线个数	
+	optional int64 reward_sum = 3;				// 总共赚取额度	
+	optional int64 valid_reward_sum = 4;		// 当前有效额度(排除已经提现)	
+}
+
+// cmd:7060 推广信息请求
+message DDZMatchPromoteConfigReq {
+}
+
+// cmd:7061 推广信息返回
+message DDZMatchPromoteConfigNtf {
+	optional DDZMatchPromoteConfig promoter_config = 1;		// 推广配置
+	optional int32 is_self_promoter = 2;					// 自身为推广员,0否;1是
+	optional int32 daily_promo_reward_status = 3;			// 推广员每日奖励领取状态,0非推广员不可领;1未领取;2已领取
+	optional string promoter_code = 4;						// 自身永久唯一推广码(邀请码)
+	optional DDZMatchPerformance promoter_performance = 5;	// 推广业绩
+	optional int32 my_promoter_uin = 6;						// 我的推荐人标志
+	optional bool is_show_prom_reg_tab = 7;					// 是否显示注册上级推广人的tab页
+}
+
+// cmd 7064 填写推广员
+message DDZMatchFillPromoterReq {
+	optional string promoter_id = 1;						// 自身上级推广员ID
+}
+
+// cmd 7065 填写推广员
+message DDZMatchFillPromoterNtf {
+}
+
+//通知用户完成任务 cmd 9006
+
+message EvtUserMissionComplete {
+    optional int32 uin=1; // user id
+    optional string task_id=2; // task id
+    optional string task_type=3; // task type
+    optional int64 reward_gold=4; // reward gold
+    optional string desc=5; // description
+}
+
+// 牌局内任务状态更新通知 cmd 9012
+message EvtDeskTask {
+    repeated DeskTaskInfo undone_task_list = 1;
+    repeated DeskTaskInfo done_task_list = 2;
+    optional int32 box_index = 3;                   // 时间宝箱到达第几阶段，从0开始，如果已经领取完，就是宝箱的总个数
+}
+
+//牌局内任务列表
+message DeskTaskInfo {
+    optional string task_id = 1;
+    optional string task_type =2;
+    optional int32 task_status = 3;  // 0 未完成, 1 已完成未领奖, 2 已领奖
+    optional int32 progress = 4; // 如果还未完成，则表示进度
+    optional int32 condition = 5; // 完成条件
+    optional string desc = 6; // 任务描述
+    optional int64 gold = 7; //任务奖励金币
+	optional int64 activity_value = 8; //任务活跃积分
+}
+
+// cmd 9013 小红点通知，最多支持二级查找--CMD_COMMON_REWARD_NOTIFY
+message PickableRewardsNtf {
+    message Inner {
+        optional int32 category = 1;
+        optional int32 item = 2;
+        optional int32 status = 3;    // 0, 不可领取 1 可领取
+        optional int32 show_num = 4;	// 专为好友列表设计小红点登录时展示数量
+    }
+    repeated Inner notify = 1;
+    optional int32 notify_type = 2;   // 0是增量通知，1是全量通知
+}
+
+message AppStoreItemConf{
+    optional string name = 1;                       // 商品 ITEM ID，唯一的
+    optional int32 type = 2;                        // 商品类型 0购买金币1购买物品2购买钻石
+    optional int32 currency = 3;                    // 用金币或者钻石去兑换 0:用金币兑换1:用钻石兑换2:用毛爷爷兑换3:用福卡去兑换
+    optional int64 price = 4;                       // 价格
+    optional int64 amount = 5;                      // 可以兑换到的数量
+    optional int32 label = 6;                       // 标签类型, 0: 无标签；1:推荐；2:热销
+    optional int32 gift_id = 7;                     // 礼物ID
+	optional int32 add_count = 8;                   // 附赠数量,仅仅用于显示
+	optional string title = 9;						// 标题描述
+    optional bool is_show = 10;                     // 是否展示
+}
+
+message AppStoreConf {
+	repeated AppStoreItemConf store_item = 1;		// app 新增商城配置
+}
+
+// 9008
+message ActivityInfoRsp {
+    optional int32 num = 1;    // 有多少个活动奖励
+}
+
+// 事件 cmd 303 score变化
+message EvtScoreChanged {
+    optional int32 gain_score = 1;
+    optional int32 user_score = 2;
+    optional int32 credit_type = 3;  // 1, 2, 3, 4
+}
+
+// --------------APP 新增 end ------------------
+// =============wx =================
+// CMD:6619 500版本赛事段位引导
+message DDZMatchGuideReq{
+	optional int32 is_inherit = 1;          		// 是否继承段位 1继承 0不继承
+}
+message DDZMatchGuideRep{
+	optional int32 is_inherit = 1;          		// 是否继承段位 1继承 0不继承
+	optional int32 match_level = 2;          		// 新段位
+	optional int32 level_exchange = 3;          	// 段位自动兑换奖励(为0则没有)
+	optional int32 level_card_exchange = 4;         // 等级卡自动兑换奖励(为0则没有)
+}
+
+// CMD: 7561 领取金币宝箱
+message PickGoldBoxReq{
+    optional bool is_protect_level = 1;  // 是否是保级
+}
+message PickGoldBoxRsp{
+    optional int32 gold = 1;            // 领取的金币数
+}
+
+
+// 新手引导
+message NewUserGuidance {
+    optional int32 type = 1;            // 10:残局每日首次奖励引导 20:残局玩家首次点击第一关引导 30:残局玩家首次闯关失败引导 40:残局玩家首次闯关成功引导 
+                                        // 50:好友房玩家首次点击左上角引导 60:好友房玩家首次站起引导 70:首次登陆奖励引导
+    optional bool  has_pop = 2;         // 是否已经弹过了                                   
+}
+
+// CMD: 6620 新手引导
+message SetNewUserGuidanceReq {
+    optional int32 type = 1;
+}
+message SetNewUserGuidanceRsp {}
+
+// CMD: 6621 赛事引导拉取最新信息
+message DDZMatchGuideLatestInfoReq {
+}
+message DDZMatchGuideLatestInfoRsp {
+	optional MatchGuideInfo match_guide_info = 1;      // 赛事引导相关信息
+}
+
+// cmd: 6622
+// 金币不足引导弹窗通知
+message GoldGuideNtf {
+	optional int32 type = 1;            		// 引导类型 1看广告 2ios充值引导 3android充值
+	optional string item_id = 2;        		// 计费点(安卓充值时才有)
+    optional int32 deposit_type = 3;            // 充值类型(安卓充值时才有)
+}
+
+// CMD: 6623 客户端拉取最新分享图文信息
+message GetShareInfoReq{
+    optional string share_type_str = 1;  		// 分享的类型
+}
+message GetShareInfoRsp{
+    optional ComShareInfo share_info = 1;       // 分享的信息
+    optional int32 cur_time = 2;                // 有奖励且有次数限制的返回当前已经领了几次了
+}
+message TaskReward{
+    optional int32 reward_type = 1;       // 1:金币 2:红包 3:记牌器 4: 钻石
+    optional int32 amount = 2;        
+    optional int32 amount_type = 3;       // 只有金币有该字段 1:少量 2:中量 3:大量 
+}
+
+message TaskInfo {
+    optional int32 id = 1;      // 任务id
+    optional string desc = 2;   // 描述
+    optional int32 type = 3;    // 类型 1:每日任务玩牌 2:每日任务赢钱 3:每日任务充值 101:幸运任务牌型 102:幸运任务高倍数
+    optional int32 process = 4; // 完成进度
+    optional int32 condition = 5; // 完成任务需要的条件
+    optional int32 status = 6;   // 状态 0:未完成 1: 已完成未领奖 2:已领奖
+    optional TaskReward task_reward = 7;   // 奖励
+}
+
+// CMD: 6624 任务列表
+message TaskListReq{}
+message TaskListRsp{
+    repeated TaskInfo task_info = 1;
+}
+
+// CMD: 6625 领取任务奖励
+message TaskPickRewardReq{
+    optional int32 id = 1;      // 任务id
+}
+message TaskPickRewardRsp{}
+
+// CMD:6626 每日任务充值成功
+message TaskRechargeSuccessNTF {
+    optional int32 reward_gold = 1;
+    optional int32 task_id = 2;
+}
+
+// CMD: 6627 幸运任务领取奖励
+message DDZLuckyTaskPickRewardReq{
+    optional int32 tid = 1;           // 任务id
+    optional string hand_id = 2;      // 牌桌hand_id 传回来
+}
+message DDZLuckyTaskPickRewardRsp{
+}
+
+
+// 地主名牌请求cmd:6628
+message DDZLandlordShowCardReq {
+}
+message DDZLandlordShowCardRsp{
+}
+
+// CMD: 6629 分享消耗钻石请求
+message DDZShareConsumeDiamondReq {
+    optional int32 via = 1;               // 消耗场景: 1金币场免输 2金币场翻倍 3幸运任务
+}
+message DDZShareConsumeDiamondRsp {
+    optional int32 result = 1;            // 0扣除钻石成功 1钻石不足 2今日次数用完 3场景错误
+}
+
+// CMD: 6630 倍数查看
+message DDZGetMultipleInfoReq {               
+	optional int32 uin=1; // user id	// 被查看倍数玩家uin,没有则查看自己
+}
+message DDZGetMultipleInfoRsp {
+    optional MultipleInfo multiple_info = 1;   // 加倍相关信息，展示具体倍数            
+}
+
+message WinStreakTaskInfo {
+    optional int32 ws_streak = 1;       // 查询任务回传
+    optional string name = 2;           // 名称 3连胜 5连胜 7连胜
+    optional int32 status = 3;          // 1可领取 2未完成
+    optional int32 can_pick_times = 4;  // 可领取次数
+}
+
+// 查看连胜任务详情cmd:6631
+message DDZWinStreakTaskReq {
+}
+message DDZWinStreakTaskRsp{
+    repeated WinStreakTaskInfo ws_info = 1;    // 任务信息 
+    optional int32 can_done_times = 2;         // 剩余完成次数
+}
+
+// 查询任务 cmd:6632
+message DDZWinStreakTaskQueryReq {
+    optional int32 ws_streak = 1;                     // 连胜
+}
+message DDZWinStreakTaskQueryRsp {
+    optional WinStreakPickEvt ws_pick_info = 1;       // 连胜任务 牌桌内显示信息
+}
+
+// 领取任务奖励 cmd:6633
+message DDZWinStreakTaskPickReq {
+    optional int32 ws_streak = 1;                     // 连胜
+}
+message DDZWinStreakTaskPickRsp {
+    optional TaskReward task_reward = 1;              // 奖励
+    optional WinStreakDeskMsg ws_desk_info = 2;       // 连胜任务 牌桌内显示信息
+}
+
+// 退出 cmd:6634
+message DDZWinStreakTaskExitReq {
+}
+message DDZWinStreakTaskExitRsp {
+    optional string exit_desc = 1;                // 则继续赢X局，即可获得XXX元红包
+}
+
+
+// 语音 cmd:6635
+message DDZVolteMsgReq {
+	optional string volte_msg = 1;			// 转发内容
+}
+message DDZVolteMsgRsp {
+}
+
+// 语音 cmd:6636
+message DDZVolteMsgNtf {
+	optional int32 uin = 1;
+	optional string volte_msg = 2;			// 转发内容
+}
+
+message DiamondInvite600StageInfo {
+    optional int32 stage = 1;               // 阶段 (领奖传回)
+    optional int32 need_invite_num = 2;     // 拉新人数
+    optional int32 diamond = 3;             // 钻石数
+    optional int32 pick_status = 4;         // 领取状态     0 未完成 1 未领取 2 已领取
+}
+
+// 钻石拉新活动页面获取 6637
+message DDZDiamondInvite600Req {
+}
+message DDZDiamondInvite600Rsp {
+    repeated DiamondInvite600StageInfo stage_info = 1;     // 阶段信息
+    optional int32 invite_num = 2;                         // 当前拉新人数
+    optional int32 more_num = 3;                           // 距离下一个目标需要拉新人数 <=0为拉满了最大目标
+    optional int32 next_diamond = 4;                       // 下一个目标能领取的钻石数
+}
+
+// 钻石拉新活动领取奖励 6638
+message DDZDiamondInvitePick600Req {
+    optional int32 stage = 1;                // 阶段
+}
+message DDZDiamondInvitePick600Rsp {
+    optional TaskReward task_reward = 1;                   // 奖励
+    repeated DiamondInvite600StageInfo stage_info = 2;     // 阶段信息
+    optional int32 invite_num = 3;                         // 当前拉新人数
+    optional int32 more_num = 4;                           // 距离下一个目标需要拉新人数 <=0为拉满了最大目标
+    optional int32 next_diamond = 5;                       // 下一个目标能领取的钻石数
+}
+
+message DismissVoteStatus {
+    optional int32 uin = 1;
+    optional string nick = 2;
+    optional int32 status = 3;                  // 1:发起解散 2:同意解散 3:拒绝解散 0:等待中
+}
+
+// 好友房解散牌桌投票 cmd:6639
+message DDZCustomMadeDismissVoteReq {
+    optional int32 op_type = 1;                     // 1:发起解散 2:同意解散 3:拒绝解散
+}
+message DDZCustomMadeDismissVoteRsp {}
+
+// 好友房解散牌桌投票通知 cmd:6640
+message DDZCustomMadeDismissVoteEvt {
+    repeated DismissVoteStatus dismiss_vote_status = 1;
+    optional int32 left_time = 2;                   // 剩余时间
+}
+
+message DiamondRedPacketInfo {
+    optional int32 reward_id = 1;                // 奖励id
+    optional int32 uin = 2;                     // 点击分享链接进来的用户的uin
+    optional string icon = 3;                   // 点击分享链接进来的用户的头像
+    optional string nick = 4;                   // 点击分享链接进来的用户的昵称
+    optional int32 reward_amount = 5;            // 分享链接发起者获得的奖励数量
+    optional int32 sex = 6;                     // 用户性别
+    optional int32 status = 7;                  // 1:可领取 2:已领取
+    optional int32 reward_diamond = 8;          // 奖励的钻石
+}
+
+// 600版本钻石红包 6641
+message DiamondRedPacketReq {}
+message DiamondRedPacketRsp{
+    repeated DiamondRedPacketInfo diamond_red_packet_info = 1;
+}
+
+// 600版本钻石红包领奖 6642
+message DiamondRedPacketPickReq {
+    optional int32 reward_id = 1;          // 奖励id 0为大礼包
+}
+message DiamondRedPacketPickRsp {
+    optional int32 reward_diamond = 1;
+}
+
+// 好友房切后台查询解散牌桌状态 6643
+message DDZCustomMadeDismissVoteQueryReq {} 
+message DDZCustomMadeDismissVoteQueryRsp {
+    optional bool desk_exist = 1;                   // 桌子是否存在
+    optional bool dismiss_voting = 2;               // 投票是否正在进行
+}
+
+// CMD: 30017 保星请求
+message StarProtectReq {}
+message StarProtectRsp {
+    optional MatchAllLvInfo all_lv_info_bef = 1;     // 保星前的段位  
+    optional MatchAllLvInfo all_lv_info_now = 2;     // 保星后的段位
+}
+
+// CMD: 30051 设置引导状态
+message SetGuidanceReq {
+    optional int32 guide_type = 1;                  // 1.630赛事引导 2.第一赛季引导
+    optional int32 guide_status = 2;                // 设置新赛事引导状态 0未引导 1已引导    
+}
+message SetGuidanceRsp {}
+
+// CMD: 30052 使用宝箱
+message UseMatchBoxReq {
+    optional int32 match_box_lv = 1;                // 宝箱等级
+}
+message UseMatchBoxRsp {
+    optional int32 coupon = 1;                     // 奖励信息
+}
+
+message IconFrame {
+    optional string id = 1;                         // id
+    optional string name = 2;                       // 名称
+    optional string path = 3;                       // 图片路径
+    optional bool in_use = 4;                       // 是不是正在使用
+    optional bool red_dot = 5;                      // 小红点
+    optional int32 timestamp = 6;                   // 过期时间 -1为永久
+}
+
+// CMD: 30055 头像框列表
+message IconFrameListReq {}
+message IconFrameListRsp {
+    repeated IconFrame icon_frame = 1;
+}
+
+// CMD: 30056 使用头像框
+message UseIconFrameReq {
+    optional string id = 1;
+}
+message UseIconFrameRsp {}
+
+// CMD:30057 头像框变化通知
+message IconFrameChangeNtf {
+    optional int32 uin = 1;
+    optional string icon_frame_path = 2;
+}
+
+// CMD: 30058 保星二次弹窗通知
+message StarProtectAgainReq {}
+message StarProtectAgainRsp {}
+
+// CMD: 30060 兑换老段位和等级卡
+message ExchangeNewCouponReq {}
+message ExchangeNewCouponRsp {
+    repeated ExchangeNewCouponInfo exchange_info = 1;   // 兑换的内容
+    optional int32 coupon_num = 2;                      // 兑换后的新奖券数
+}
+
+message ExchangeNewCouponInfo {
+    optional int32 exchange_type = 1;               // 类型  1段位兑换 2等级卡兑换
+    optional int32 num = 2;                         // 数量
+    optional int32 level = 3;                       // 段位(段位和等级卡类型传这个字段)
+}
+
+// 630赛事通知 cmd: 30062
+message MatchLvChangeNtf {
+    optional MatchAllLvInfo all_lv_info = 1;
+}

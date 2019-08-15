@@ -1,0 +1,30 @@
+{
+  "ver": "1.0.0",
+  "uuid": "0c4ea477-b843-4122-a1b8-9951773cf170",
+  "type": "sprite",
+  "wrapMode": "clamp",
+  "filterMode": "bilinear",
+  "subMetas": {
+    "endgamelobby": {
+      "ver": "1.0.3",
+      "uuid": "0c7451b7-acd9-49a6-8266-596775cb1271",
+      "rawTextureUuid": "0c4ea477-b843-4122-a1b8-9951773cf170",
+      "trimType": "auto",
+      "trimThreshold": 1,
+      "rotated": false,
+      "offsetX": 0,
+      "offsetY": 0,
+      "trimX": 2,
+      "trimY": 2,
+      "width": 867,
+      "height": 796,
+      "rawWidth": 871,
+      "rawHeight": 800,
+      "borderTop": 0,
+      "borderBottom": 0,
+      "borderLeft": 0,
+      "borderRight": 0,
+      "subMetas": {}
+    }
+  }
+}

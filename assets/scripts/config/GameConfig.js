@@ -1,0 +1,29 @@
+let config = {};
+
+config.APP_ID = "wx7daec4246ae67438";
+config.CHANNEL = "CN_WEB_WECHAT";
+config.DEBUG = true;
+config.DEVICE_ID = "0000";
+config.DOWNLOAD_NAME = "wxddz-test.qfun.com";
+config.HORTOR_GAMEID = "external_qfddz_test";
+config.HORTOR_SECRET = "e9a1c2baf83361b3d21dcd345bf7e1d1";
+config.HORTOR_WALL_GAMEID = "qfddz";
+config.HORTOR_WALL_KEY = "XtUNYLJnM9guiCpG";
+config.HOST_HTTP = "http://";
+config.HOST_NAME = "wxddz-test.qfun.com";
+config.HOST_PAY_CALLBACK = "http://pay-test.qfun.com/wx/game/pay/cb";
+config.HOST_PAY_NAME = "http://wxddz-test.qfun.com/webpay/wx/game/order/create";
+config.HOST_RES_FORMAT = "%s%s/media/wxgame/%s/%s/static/";
+config.HOST_WSS = "ws://";
+config.LANG = "cn";
+config.NICK = "test";
+config.OS = "web";
+config.RES_VERSION = 632004;
+config.SOCKET_IP = "wxddz-test.qfun.com";
+config.SOCKET_PORT = 29511;
+config.UIN = 87;
+config.UNITY_PAY_SECRET = "F0V-]060D~;v=64d8b9LBA0/x>1=I%+g";
+config.UPLOAD_HORTOR_NAME = "wxlog-test.hortorgames.com/wxlog/api/v1/external/stats";
+config.UPLOAD_STAT_NAME = "wxddz-test.qfun.com:8200/stat/event_track";
+config.VERSION = 632;
+export default config

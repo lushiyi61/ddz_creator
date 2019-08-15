@@ -1,0 +1,7 @@
+{
+  "ver": "1.0.0",
+  "uuid": "c7d050a9-efd3-495d-80c5-d90c683a67e6",
+  "atlasJson": "{\"width\":512,\"height\":256,\"name\":\"NewAnimationdi345ju\",\"imagePath\":\"NewAnimationdi345ju_tex.png\",\"SubTexture\":[{\"width\":81,\"y\":1,\"height\":76,\"name\":\"animation_got_05\",\"x\":297},{\"width\":76,\"y\":163,\"height\":73,\"name\":\"animation_got_04\",\"x\":261},{\"width\":84,\"y\":87,\"height\":74,\"name\":\"animation_got_03\",\"x\":261},{\"width\":258,\"y\":87,\"height\":84,\"name\":\"animation_got_diju2\",\"x\":1},{\"width\":294,\"y\":1,\"height\":84,\"name\":\"animation_got_dijumohu2\",\"x\":1},{\"width\":63,\"y\":163,\"height\":63,\"name\":\"animation_got_sixing2\",\"x\":339}]}",
+  "texture": "efc30b06-c4a7-49bb-922f-426851ac08b8",
+  "subMetas": {}
+}

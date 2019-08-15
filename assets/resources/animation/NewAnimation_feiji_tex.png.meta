@@ -1,0 +1,30 @@
+{
+  "ver": "1.0.0",
+  "uuid": "0d7f91dd-6f9d-4a70-a224-7e2bfe6e0d79",
+  "type": "sprite",
+  "wrapMode": "clamp",
+  "filterMode": "bilinear",
+  "subMetas": {
+    "NewAnimation_feiji_tex": {
+      "ver": "1.0.3",
+      "uuid": "c46ba457-ed19-4405-acfe-5eb7b16cafa4",
+      "rawTextureUuid": "0d7f91dd-6f9d-4a70-a224-7e2bfe6e0d79",
+      "trimType": "auto",
+      "trimThreshold": 1,
+      "rotated": false,
+      "offsetX": -5,
+      "offsetY": 106.5,
+      "trimX": 1,
+      "trimY": 1,
+      "width": 500,
+      "height": 297,
+      "rawWidth": 512,
+      "rawHeight": 512,
+      "borderTop": 0,
+      "borderBottom": 0,
+      "borderLeft": 0,
+      "borderRight": 0,
+      "subMetas": {}
+    }
+  }
+}

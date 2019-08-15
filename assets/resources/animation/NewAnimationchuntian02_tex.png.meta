@@ -1,0 +1,30 @@
+{
+  "ver": "1.0.0",
+  "uuid": "bf725d84-4b38-4d12-b2d8-3eaf5593f9b6",
+  "type": "sprite",
+  "wrapMode": "clamp",
+  "filterMode": "bilinear",
+  "subMetas": {
+    "NewAnimationchuntian02_tex": {
+      "ver": "1.0.3",
+      "uuid": "39a12cf4-5987-430c-8748-8a57b9973365",
+      "rawTextureUuid": "bf725d84-4b38-4d12-b2d8-3eaf5593f9b6",
+      "trimType": "auto",
+      "trimThreshold": 1,
+      "rotated": false,
+      "offsetX": -59,
+      "offsetY": 39,
+      "trimX": 1,
+      "trimY": 1,
+      "width": 904,
+      "height": 432,
+      "rawWidth": 1024,
+      "rawHeight": 512,
+      "borderTop": 0,
+      "borderBottom": 0,
+      "borderLeft": 0,
+      "borderRight": 0,
+      "subMetas": {}
+    }
+  }
+}

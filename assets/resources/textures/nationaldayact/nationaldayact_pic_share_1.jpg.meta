@@ -1,0 +1,30 @@
+{
+  "ver": "1.0.0",
+  "uuid": "ea3cf7d9-a5ea-4a03-b17a-88feb9ea90ca",
+  "type": "sprite",
+  "wrapMode": "clamp",
+  "filterMode": "bilinear",
+  "subMetas": {
+    "nationaldayact_pic_share_1": {
+      "ver": "1.0.3",
+      "uuid": "c0a0c41d-6020-4c5c-b641-0f116d32cf37",
+      "rawTextureUuid": "ea3cf7d9-a5ea-4a03-b17a-88feb9ea90ca",
+      "trimType": "auto",
+      "trimThreshold": 1,
+      "rotated": false,
+      "offsetX": 0,
+      "offsetY": 0,
+      "trimX": 0,
+      "trimY": 0,
+      "width": 750,
+      "height": 1334,
+      "rawWidth": 750,
+      "rawHeight": 1334,
+      "borderTop": 0,
+      "borderBottom": 0,
+      "borderLeft": 0,
+      "borderRight": 0,
+      "subMetas": {}
+    }
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "ver": "1.0.0",
+  "uuid": "48545f12-3ebf-427f-83b0-27179cb081db",
+  "atlasJson": "{\"width\":512,\"SubTexture\":[{\"y\":239,\"frameY\":-27,\"frameWidth\":197,\"width\":183,\"frameX\":-7,\"frameHeight\":121,\"height\":58,\"name\":\"Animation_feiji_6\",\"x\":1},{\"y\":167,\"frameY\":-27,\"frameWidth\":197,\"width\":180,\"frameX\":-10,\"frameHeight\":121,\"height\":71,\"name\":\"Animation_feiji_5\",\"x\":321},{\"y\":1,\"frameY\":-27,\"frameWidth\":197,\"width\":172,\"frameX\":-13,\"frameHeight\":121,\"height\":91,\"name\":\"Animation_feiji_4\",\"x\":321},{\"y\":94,\"frameY\":-26,\"frameWidth\":197,\"width\":180,\"frameX\":-9,\"frameHeight\":121,\"height\":71,\"name\":\"Animation_feiji_3\",\"x\":321},{\"y\":240,\"frameY\":-27,\"frameWidth\":197,\"width\":183,\"frameX\":-7,\"frameHeight\":121,\"height\":58,\"name\":\"Animation_feiji_2\",\"x\":186},{\"y\":175,\"frameY\":-18,\"frameWidth\":197,\"width\":181,\"frameX\":-8,\"frameHeight\":121,\"height\":62,\"name\":\"Animation_feiji_1\",\"x\":1},{\"width\":318,\"y\":1,\"height\":172,\"name\":\"Animation_feiji\",\"x\":1}],\"height\":512,\"name\":\"NewAnimation_feiji\",\"imagePath\":\"NewAnimation_feiji_tex.png\"}",
+  "texture": "0d7f91dd-6f9d-4a70-a224-7e2bfe6e0d79",
+  "subMetas": {}
+}
